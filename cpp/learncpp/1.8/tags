@@ -1,0 +1,4 @@
+CC	Makefile	1
+Mmain.cpp	main.cpp	/^int main()$/
+add	add.cpp	/^int add(int x, int y)$/
+add	add.hpp	/^int add(int x, int y);$/
