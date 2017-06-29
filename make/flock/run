@@ -1,0 +1,8 @@
+#!/bin/bash
+
+set -e
+
+(
+  flock 200
+  make
+) 200>Makefile.lock
