@@ -1,0 +1,24 @@
+#!/bin/bash
+
+print_letter_from_idx(){
+  idx=$(($1 + 65))
+  (( $1 >= 26 )) && ((idx+=6))
+  echo -en "\x$(printf "%x" $idx)"
+}
+
+echo "A: B1 C1 D1"
+
+for ((parent_idx=1; parent_idx<42; parent_idx++))
+do
+  printf "$(print_letter_from_idx $parent_idx):"
+  for ((j=0; j<4; j++))
+  do
+    child_idx=$((4*(parent_idx/4+1)+j))
+    if ((child_idx<52))
+    then
+      weight=$((RANDOM%10))
+      printf " $(print_letter_from_idx $child_idx)$weight"
+    fi
+  done
+  printf "\n"
+done
