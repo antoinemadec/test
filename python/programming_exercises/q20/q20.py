@@ -21,16 +21,11 @@ Question:
 
 Answer:""")
 
-sentence  = sorted(input("Enter sentence: ").split(' '))
-prev_word = ""
-count     = 1
+sentence  = input("Enter sentence: ").split(' ')
+freq = {}
 for word in sentence:
-    if word == prev_word:
-        count += 1
-    else:
-        print("%s:%d" % (prev_word, count))
-        count = 1
-    prev_word = word
+    freq[word] = freq.get(word, 0) + 1
 
-print("%s:%d" % (prev_word, count))
-count = 1
+for word in sorted(freq.keys()):
+    print("%s:%d" % (word, freq[word]))
+
