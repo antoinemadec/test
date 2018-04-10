@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import socket
 
@@ -10,8 +10,8 @@ sock    = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.connect((host,port))
 
 try:
-    message = 'qwertyuiopasdfghjklz'
-    sock.sendall(message)
+    message = input("Enter message: ")
+    sock.sendall(message.encode())
     # Look for the response
     amount_received = 0
     amount_expected = len(message)
@@ -19,6 +19,6 @@ try:
         data = sock.recv(size)
         if data:
             amount_received += len(data)
-        print data
+        print(data.decode())
 finally:
     sock.close()
