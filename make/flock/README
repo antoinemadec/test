@@ -1,0 +1,2 @@
+'make' won't execute until Makefile.lock is unlocked.
+Try running 2 'run' concurently, the 2nd will wait for the 1st to be done.
