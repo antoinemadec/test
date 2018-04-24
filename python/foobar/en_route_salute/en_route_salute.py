@@ -32,15 +32,14 @@ Output:
 
 
 def answer(s):
-    l_indexes = []
-    r_indexes = []
-    for n in range(0,len(s)):
-        c = s[n]
+    count = 0
+    salute = 0
+    for c in s:
         if c == '>':
-            r_indexes.append(n)
+            count +=1
         elif c == '<':
-            l_indexes.append(n)
-    return sum([sum([2 for x in l_indexes if x>n]) for n in r_indexes])
+            salute += 2*count
+    return salute
 
 print(answer(">----<"))
 print(answer("<<>><"))
