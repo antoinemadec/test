@@ -1,8 +1,17 @@
 #!/usr/bin/env python3
 
 """
-(1,2)
-(1,1) (2,1)
+y
+^
+|
+---> x
+
+return ID from (x,y) where ID follow this:
+
+7
+4 8
+2 5 9
+1 3 6 10
 """
 
 def answer(x,y):
