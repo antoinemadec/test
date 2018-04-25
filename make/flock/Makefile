@@ -1,4 +1,4 @@
 all: foo
 
 foo:
-	head -c 10485760 /dev/urandom > foo
+	sleep 10; head -c 10485760 /dev/urandom > foo

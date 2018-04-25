@@ -1,0 +1,4 @@
+try:
+  make
+  FOO=bar make
+  export FOO=foo; make

@@ -1,0 +1,9 @@
+#!/bin/bash
+
+test_name="$@"
+test_name="$(echo $test_name | tr '[:upper:]' '[:lower:]' | tr ' ' '_')"
+test_path="$test_name/$test_name.py"
+
+mkdir -p $test_name
+echo '#!/usr/bin/env python3' > $test_path
+chmod +x $test_path
