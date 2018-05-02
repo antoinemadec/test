@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 Alright, detective, one of our colleagues successfully observed our target
@@ -35,46 +35,25 @@ test cases for you.
 Detective, we count on you!
 """
 
-# TODO: overkill, just list them manually
-possible_keys = {}
-possible_keys[0] = [0,8]
-for i in range(1,10):
-    x,y = (i-1)//3, (i-1)%3
-    arr = []
-    for X, Y in ((x-1,y), (x,y-1), (x,y), (x,y+1), (x+1,y)):
-        if X in range(3) and Y in range(3):
-            arr.append(X*3+Y+1)
-    if i == 8:
-        arr.append(0)
-    possible_keys[i] = arr
+possible_keys = {'0': "08", '1': "124", '2': "1235", '3': "236", '4': "1457", '5': "24568", '6': "3569", '7': "478", '8': "57890", '9': "689"}
 
-# TODO: could be done in one line with itertools.product
-# TODO: could be done more nicely with proper recursion
-combinations = []
-def get_pins_recursion(numbers):
-    if numbers:
-        global combinations
-        new_combinations = []
-        for i in possible_keys[numbers[0]]:
-            if combinations:
-                new_combinations += (a + [i] for a in combinations)
-            else:
-                new_combinations.append([i])
-        combinations = new_combinations
-        get_pins_recursion(numbers[1:])
+# # can be done in one line with itertools.product
+# from itertools import product
+# def get_pins(observed):
+#     return [''.join(a) for a in product(*[possible_keys[k] for k in observed])]
 
+# can be done with nice recursion
 def get_pins(observed):
-    global combinations
-    combinations = []
-    get_pins_recursion([int(c) for c in observed])
-    return [''.join([str(n) for n in a]) for a in combinations]
+    if len(observed) == 1:
+        return [c for c in possible_keys[observed[0]]]
+    else:
+        return [ c+s for s in get_pins(observed[1:]) for c in possible_keys[observed[0]]]
 
-# print(sorted(get_pins('11')))
+print(get_pins('11'))
 
 expectations = [('8', ['5','7','8','9','0']),
         ('11',["11", "22", "44", "12", "21", "14", "41", "24", "42"]),
         ('369', ["339","366","399","658","636","258","268","669","668","266","369","398","256","296","259","368","638","396","238","356","659","639","666","359","336","299","338","696","269","358","656","698","699","298","236","239"])]
-
 for tup in expectations:
     print(sorted(get_pins(tup[0])))
     print(sorted(tup[1]))
