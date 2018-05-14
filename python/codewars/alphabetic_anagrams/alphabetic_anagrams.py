@@ -39,7 +39,16 @@ BOOKKEEPER = 10743
 '''
 
 def listPosition(word):
-    pass
+    n = 1
+    for i,c in enumerate(word):
+        d = {}
+        for c2 in word[i:]:
+            d[c2] = d.get(c2,0) + 1
+        d_fact = 1
+        for k in d:
+            d_fact *= factorial(d[k])
+        n += sum([1 for char in word[i+1:] if char < c])*factorial(len(word)-i-1)//d_fact
+    return n
 
 f = {}
 def factorial(n):
@@ -49,34 +58,6 @@ def factorial(n):
         f[n] = n*factorial(n-1)
     return f[n]
 
-def factoradics(n):
-    for k in range(n+2):
-        if factorial(k) > n:
-            break
-    r = []
-    for k in range(k-1,-1,-1):
-        d = n//factorial(k)
-        r.append(d)
-        n -= d*factorial(k)
-    return r if r else [0]
-
-# https://medium.com/@aiswaryamathur/find-the-n-th-permutation-of-an-ordered-string-using-factorial-number-system-9c81e34ab0c8
-def nth_permutation(string,n):
-    string  = sorted(string)
-    r       = ""
-    fr_n = factoradics(n)
-    fr_n = (len(string) - len(fr_n))*[0] + fr_n
-    for k in fr_n:
-        r += string[k]
-        string = string[:k] + string[k+1:]
-    return r+''.join(string)
-
-# print(listPosition('A'), 1)
-# print(listPosition('ABAB'), 2)
-# print(listPosition('AAAB'), 1)
-# print(listPosition('BAAA'), 4)
-# print(listPosition('QUESTION'), 24572)
-# print(listPosition('BOOKKEEPER'), 10743)
-
-for i in range(4*3*2):
-    print(str(i), nth_permutation('abcd',i))
+testValues = {'A' : 1, 'ABAB' : 2, 'AAAB' : 1, 'BAAA' : 4, 'QUESTION' : 24572, 'BOOKKEEPER' : 10743}
+for word in testValues:
+      print(listPosition(word), testValues[word])
