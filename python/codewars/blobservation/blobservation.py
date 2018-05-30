@@ -74,52 +74,67 @@ class Blobservation:
     def __init__(self,h,w=None):
         if not w:
             w = h
-        self.w = w
-        self.h = h
+        self.w,self.h = w,h
         self.max = max(w,h)
         self.blobs = {}
 
     def populate(self,l):
+        bak = self.blobs.copy()
         for d in l:
+            if type(d) != dict or 'size' not in d or 'x' not in d or 'y' not in d \
+                    or type(d['size']) != int or d['size']<1 or d['size']>20 \
+                    or type(d['x']) != int or d['x']<0 or d['x']>self.h \
+                    or type(d['y']) != int or d['y']<0 or d['y']>self.w:
+                self.blobs = bak
+                raise ValueError('out of range')
             x,y = d['x'],d['y']
             self.blobs[(x,y)] = self.blobs.get((x,y),0) + d['size']
 
-    def get_sorted_list(self):
-        return [(*k,v) for k,v in sorted(self.blobs.items(), key=lambda x:x[1])]
-
     def move(self,n=1):
+        if type(n) != int or n<1:
+            raise ValueError('no negative value allowed')
         for _ in range(n):
-            blob_list = self.get_sorted_list()
+            new_blobs = {}
+            blob_list = [(*k,v) for k,v in sorted(self.blobs.items(), key=lambda x:x[1])]
             for x,y,s in blob_list:
                 if s == blob_list[0][2]:
-                    new_blobs = {(x,y): s}
+                    new_blobs[(x,y)] = s
                 else:
                     # find closest lower neighbor with self.blobs
                     for d in range(1,self.max):
-                        neigh = sorted([(c[0],c[1],self.blobs[c]) for c in perimeter((x,y),d) if c in self.blobs], \
-                                key=lambda x:x[2])
-                        neigh = [e for e in neigh if self.blobs[e[0:2]]<s]
-                        if neigh:
-                            max_size = neigh[-1][2]
-                            neigh = [e for e in neigh if e[2]==max_size]
+                        neighbors = [(c[0],c[1],self.blobs[c]) for c in perimeter((x,y),d) \
+                                if c in self.blobs]
+                        neighbors = [e for e in neighbors if e[2]<s]
+                        if neighbors:
+                            max_size = max(neighbors, key=lambda x:x[2])[2]
+                            neighbors = [e for e in neighbors if e[2]==max_size]
+                            neighbor = neighbors[0]
                             break
                     # move
-                    c = direction((x,y),neigh[0])
-                    k,l = x+c[0],y+c[1]
+                    dire = direction((x,y),neighbors[0])
+                    k,l = x+dire[0],y+dire[1]
                     new_blobs[(k,l)] = new_blobs.get((k,l),0) + s
             self.blobs = new_blobs
 
     def print_state(self):
-        return self.get_sorted_list()[::-1]
+        return [[x,y,self.blobs[(x,y)]] for x in range(self.h) for y in range(self.w) \
+                if (x,y) in self.blobs]
 
 
 def perimeter(c,d):
     a = []
-    for x in (c[0]-d,c[0]+d):
-        a += [(x,y) for y in range(c[1]-d,c[1]+d+1)]
-    for y in (c[1]-d,c[1]+d):
-        a += [(x,y) for x in range(c[0]-d,c[0]+d+1)]
-    return sorted(set(a))
+    x = c[0] - d
+    for y in range(c[1],c[1]+d+1):
+        a.append((x,y))
+    for x in range(c[0]-d+1,c[0]+d+1):
+        a.append((x,y))
+    for y in range(c[1]+d-1,c[1]-d-1,-1):
+        a.append((x,y))
+    for x in range(c[0]+d-1,c[0]-d-1,-1):
+        a.append((x,y))
+    for y in range(c[1]-d+1,c[1]):
+        a.append((x,y))
+    return a
 
 def direction(c0,c1):
     c = [c1[0]-c0[0],c1[1]-c0[1]]
@@ -148,51 +163,62 @@ blobs.populate(generation0)
 # print(blobs.print_state())
 blobs.move()
 # print(blobs.print_state())
-print(blobs.print_state())
-print([[0,6,5],[1,5,3],[3,1,2],[4,7,2],[5,2,4],[6,7,3],[7,1,3],[7,2,1]])
-# blobs.move()
-# print(blobs.print_state(),[[1,5,5],[2,6,3],[4,2,2],[5,6,2],[5,7,3],[6,1,4],[7,2,4]])
-# blobs.move(1000)
+# print([[0,6,5],[1,5,3],[3,1,2],[4,7,2],[5,2,4],[6,7,3],[7,1,3],[7,2,1]])
+blobs.move()
+# print(blobs.print_state())
+# print([[1,5,5],[2,6,3],[4,2,2],[5,6,2],[5,7,3],[6,1,4],[7,2,4]])
+blobs.move(1000)
 # print(blobs.print_state(),[[4,3,23]])
 
-# generation1 = [
-# 	{'x':3,'y':6,'size':3},
-# 	{'x':8,'y':0,'size':2},
-# 	{'x':5,'y':3,'size':6},
-# 	{'x':1,'y':1,'size':1},
-# 	{'x':2,'y':6,'size':2},
-# 	{'x':1,'y':5,'size':4},
-# 	{'x':7,'y':7,'size':1},
-# 	{'x':9,'y':6,'size':3},
-# 	{'x':8,'y':3,'size':4},
-# 	{'x':5,'y':6,'size':3},
-# 	{'x':0,'y':6,'size':1},
-# 	{'x':3,'y':2,'size':5}]
-# generation2 = [
-# 	{'x':5,'y':4,'size':3},
-# 	{'x':8,'y':6,'size':15},
-# 	{'x':1,'y':4,'size':4},
-# 	{'x':2,'y':7,'size':9},
-# 	{'x':9,'y':0,'size':10},
-# 	{'x':3,'y':5,'size':4},
-# 	{'x':7,'y':2,'size':6},
-# 	{'x':3,'y':3,'size':2}]
-# blobs = Blobservation(10,8)
-# blobs.populate(generation1)
-# blobs.move()
-# print(blobs.print_state(),[[0,6,1],[1,1,1],[1,6,2],[2,1,5],[2,6,7],[4,2,6],[6,7,3],[7,1,2],[7,4,4],[7,7,1],[8,7,3]])
-# blobs.move(2)
-# print(blobs.print_state(),[[0,6,7],[1,5,3],[2,2,6],[4,1,6],[6,1,2],[6,4,4],[6,6,7]])
-# blobs.move(2)
-# print(blobs.print_state(),[[2,4,13],[3,3,3],[6,1,8],[6,2,4],[6,4,7]])
-# blobs.populate(generation2)
-# print(blobs.print_state(),[[1,4,4],[2,4,13],[2,7,9],[3,3,5],[3,5,4],[5,4,3],[6,1,8],[6,2,4],[6,4,7],[7,2,6],[8,6,15],[9,0,10]])
-# blobs.move()
+generation1 = [
+	{'x':3,'y':6,'size':3},
+	{'x':8,'y':0,'size':2},
+	{'x':5,'y':3,'size':6},
+	{'x':1,'y':1,'size':1},
+	{'x':2,'y':6,'size':2},
+	{'x':1,'y':5,'size':4},
+	{'x':7,'y':7,'size':1},
+	{'x':9,'y':6,'size':3},
+	{'x':8,'y':3,'size':4},
+	{'x':5,'y':6,'size':3},
+	{'x':0,'y':6,'size':1},
+	{'x':3,'y':2,'size':5}]
+generation2 = [
+	{'x':5,'y':4,'size':3},
+	{'x':8,'y':6,'size':15},
+	{'x':1,'y':4,'size':4},
+	{'x':2,'y':7,'size':9},
+	{'x':9,'y':0,'size':10},
+	{'x':3,'y':5,'size':4},
+	{'x':7,'y':2,'size':6},
+	{'x':3,'y':3,'size':2}]
+blobs = Blobservation(10,8)
+# print(blobs.print_state())
+blobs.populate(generation1)
+# print(blobs.print_state())
+blobs.move()
+# print(blobs.print_state())
+# print([[0,6,1],[1,1,1],[1,6,2],[2,1,5],[2,6,7],[4,2,6],[6,7,3],[7,1,2],[7,4,4],[7,7,1],[8,7,3]])
+blobs.move(2)
+# print(blobs.print_state())
+# print([[0,6,7],[1,5,3],[2,2,6],[4,1,6],[6,1,2],[6,4,4],[6,6,7]])
+blobs.move(2)
+# print(blobs.print_state())
+# print([[2,4,13],[3,3,3],[6,1,8],[6,2,4],[6,4,7]])
+blobs.populate(generation2)
+# print(blobs.print_state())
+# print([[1,4,4],[2,4,13],[2,7,9],[3,3,5],[3,5,4],[5,4,3],[6,1,8],[6,2,4],[6,4,7],[7,2,6],[8,6,15],[9,0,10]])
+blobs.move()
 # print(blobs.print_state(),[[2,4,9],[3,3,13],[3,6,9],[4,4,4],[5,3,4],[5,4,10],[6,2,6],[7,2,8],[7,5,15],[8,1,10]])
-# blobs.move(3)
-# print(blobs.print_state(),[[4,3,22],[5,3,28],[5,4,9],[6,2,29]])
+blobs.move(3)
+print(blobs.print_state())
+# print([[4,3,22],[5,3,28],[5,4,9],[6,2,29]])
+
+# ERRORS
 # test.expect_error('Invalid input for the move method should trigger an error',lambda: blobs.move(-3))
-# blobs.move(30)
-# print(blobs.print_state(),[[5,3,88]])
+# blobs.move(-3)
+blobs.move(30)
+print(blobs.print_state(),[[5,3,88]])
 # test.expect_error('Invalid elements should trigger an error',lambda: blobs.populate([{'x':4,'y':6,'size':3},{'x':'3','y':2,'size':True}]))
-# print('<COMPLETEDIN::>')
+# blobs.populate([{'x':4,'y':6,'size':3},{'x':'3','y':2,'size':True}])
+# # print('<COMPLETEDIN::>')
