@@ -56,8 +56,15 @@ def dec(total, n, k_array=[]):
             return a
     return None
 
+print(decompose(12), [1,2,3,7,9])
+print(decompose(6), None)
+print(decompose(50), [1,3,5,8,49])
+print(decompose(44), [2,3,5,7,43])
+print(decompose(625), [2,5,8,34,624])
 print(decompose(5), [3,4])
-print(decompose(8), None)
-print(decompose(12), [1, 2, 3, 7, 9])
-print(decompose(50), [1, 3, 5, 8, 49])
-print(decompose(44), [2, 3, 5, 7, 43])
+print(decompose(7100), [2,3,5,119,7099])
+print(decompose(123456), [1,2,7,29,496,123455])
+print(decompose(1234567), [2,8,32,1571,1234566])
+print(decompose(7654321), [6, 10, 69, 3912, 7654320])
+print(decompose(4), None)
+print(decompose(7654322), [1, 4, 11, 69, 3912, 7654321])
