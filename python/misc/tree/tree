@@ -8,22 +8,22 @@ import operator
 class Node:
     def __init__(self, name):
         self.name = name
-        self.childs = []
+        self.children = []
         self.branches = []
 
     def add_child(self, obj, weight):
-        self.childs.append((obj, weight))
+        self.children.append((obj, weight))
 
     def find_branches(self):
         """
         return branches of this node, such as:
           ( ([b0_nodes], b0_weight), ..., ([bn_nodes], bn_weight) )
         """
-        if self.childs == []:
+        if self.children == []:
             return (([self.name], 0),)
         else:
             if self.branches == [] or no_cache:
-                for (obj, weight) in self.childs:
+                for (obj, weight) in self.children:
                     for (child_nodes, child_weight) in obj.find_branches():
                         self.branches.append(([self.name] + child_nodes, weight + child_weight))
             return self.branches
