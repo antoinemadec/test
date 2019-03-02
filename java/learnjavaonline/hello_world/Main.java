@@ -15,7 +15,7 @@
 // println:
 // is a method of out that can be used to print a line.
 public class Main {
-  public static void main(String[] args) {
-    System.out.println("Hello, World!");
-  }
+    public static void main(String[] args) {
+        System.out.println("Hello, World!");
+    }
 }
