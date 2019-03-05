@@ -20,8 +20,6 @@
 
 # Note that the mazes won't always be squares.
 
-NEIGHBORHOOD = ((-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1))
-
 
 class Node:
     def __init__(self, pos, is_goal=0):
@@ -33,15 +31,15 @@ class Node:
     def add_child(self, obj):
         self.children.append(obj)
 
-    def find_shortest_path_to_goal(self, parent_pos=[]):
+    def find_shortest_path_to_goal(self, parents_pos=[]):
         """returns shortest [distance, [(self.pos),... ,(pos_goal)]]"""
         if self.shortest_path_to_goal is None:
             if self.is_goal:
                 self.shortest_path_to_goal = [0, [self.pos]]
             else:
                 paths = []
-                for c in [x for x in self.children if x != parent_pos]:
-                    p = c.find_shortest_path_to_goal(self.pos)
+                for c in [x for x in self.children if x.pos not in parents_pos]:
+                    p = c.find_shortest_path_to_goal([self.pos] + parents_pos)
                     if p != []:
                         [child_distance, child_path] = p
                         if self.pos not in child_path:
@@ -56,6 +54,8 @@ class Node:
 
 
 class Tree:
+    NEIGHBORHOOD = ((-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1))
+
     def __init__(self, m):
         self.m = m
         self.node_dict = {}
@@ -64,6 +64,8 @@ class Tree:
     def create_node(self, pos, is_goal=0):
         if pos not in self.node_dict:
             self.node_dict[pos] = Node(pos, is_goal)
+        if is_goal:
+            self.node_dict[pos].is_goal = 1
 
     def populate_tree(self):
         X = len(self.m)
@@ -74,7 +76,7 @@ class Tree:
                     self.create_node((x, y))
                     if self.m[x][y] == 'S':
                         self.start_pos = (x, y)
-                    for vec in NEIGHBORHOOD:
+                    for vec in Tree.NEIGHBORHOOD:
                         (k, l) = (x+vec[0], y+vec[1])
                         if k in range(X) and l in range(Y):
                             self.create_node((k, l))
@@ -87,19 +89,17 @@ class Tree:
 
 
 def wire_DHD_SG1(existingWires):
-    # create tree
     m = [[l for l in s] for s in existingWires.split()]
     t = Tree(m)
     t.populate_tree()
     path = t.find_shortest_path_to_goal()
-    # if Node.possible_paths == []:
-    #     return "Oh for crying out loud..."
-    # else:
-    #     print("toto")
-    #     # Node.possible_paths.sort()
-    #     # for (a,b) in Node.possible_paths[0][1][1:-1]:
-    #     #     m[a][b] = 'P'
-    # return "\n".join(["".join(r) for r in m])
+    if path == []:
+        return "Oh for crying out loud..."
+    else:
+        for (a, b) in path[1][1:-1]:
+            m[a][b] = 'P'
+    print(path[0])
+    return "\n".join(["".join(r) for r in m])
 
 
 # -------------------------------------------------------------
@@ -154,12 +154,45 @@ def wire_DHD_SG1(existingWires):
 # print(wire_DHD_SG1(existingWires), solution)
 
 
-def gen_input_pattern(n=73):
-    s = "S" + (n-1)*"." + "\n"
-    for i in range(n-2):
-        s += n*"." + "\n"
-    s += (n-1)*"."+"G"
-    return s
+# def gen_input_pattern(n=73):
+#     s = "S" + (n-1)*"." + "\n"
+#     for i in range(n-2):
+#         s += n*"." + "\n"
+#     s += (n-1)*"."+"G"
+#     return s
 
 
-print(wire_DHD_SG1(gen_input_pattern(3)))
+# print(wire_DHD_SG1(gen_input_pattern(5)))
+
+# TODO:
+# Length: 	35.04163056034262
+# Expected:	30.213203435596434
+existingWires = """
+...X..X.X.....X..XXXX.GXXX
+XX.X.XX..X..X.X..XX.XXX...
+XXXX.X.X.X..X.XXXX.X.X.X.X
+XX..XX.X.X.XXXXXXXXX..X..X
+XXXXX.X.X.XXX..X.XXXX...XX
+.XX.X..XX.X.XX.X.XXXXX.XX.
+...XXX.X.XXXXX.XXXX...X.XX
+.X.XXXXX.X....XXXX..XXX..X
+XXX..X..XX.XXXXXX.XXX..X.X
+XX....XX..X.X....X...X.X.X
+..XXX.XXXXX..X..XX.XXXX.X.
+...X..XXXX.X...X.XXX..XX.X
+..XX.XX.XXX.XXX.XXXXXX.X..
+XX.XXXXX...X..X.XX...XX...
+XX.X.....XXX.X.XX.XX.XX..X
+.X...X.XX.XXX.X..X.X.XXX.X
+XX.X..XXX.XXX.....XXX.XXX.
+.XX.X.XX.XXX...X.X..XXXXX.
+...X.XX.X.X..XXX..X..X.X.X
+XXXXXXX......XXX...X...XX.
+X..X.XXX..XX..X.XX..XXXXXX
+XXX...XX.X.XX.XXXXXXXX...X
+X.X.XXX.X.XX.SX.XXX.XX.XXX
+..XXXX..X..XX..X..X....X.X
+X..XXX.XXX..X..X.X.X.X..X.
+XX.X.X......XX..XX.X.XX..X
+""".strip('\n')
+print(wire_DHD_SG1(existingWires))
