@@ -1,0 +1,7 @@
+#!/bin/bash
+
+mkdir -p output
+cp test.v output
+cd output
+
+xrun test.v -sv +access+r
