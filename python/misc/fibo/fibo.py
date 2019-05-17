@@ -17,4 +17,3 @@ def ifibo(n):
 print(fibo(999))
 
 print(ifibo(9999))
-

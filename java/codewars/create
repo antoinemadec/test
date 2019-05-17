@@ -1,0 +1,9 @@
+#!/bin/bash
+
+test_name="$@"
+test_name="$(echo $test_name | tr '[:upper:]' '[:lower:]' | tr ' ' '_')"
+test_path="$test_name/Main.java"
+
+mkdir -p $test_name
+cp template.java $test_path
+echo $test_name
