@@ -50,16 +50,42 @@ module test();
     // simvision
     $shm_open("waves.shm");
     $shm_probe("ACMTF");
-    // scenario
-    fork
-      forever
-        pull();
-    join_none
     rstB <= 1'b0;
     repeat(10) @(posedge clk);
     rstB <= 1'b1;
-    for (int i=0; i<128; i++)
-      push(i);
+    // -- in 100% ; out 100%
+    $display("-- 1");
+    fork
+      for (int i=0; i<128; i++)
+        push(i);
+      for (int i=0; i<128; i++)
+        pull();
+    join
+    repeat(10) @(posedge clk);
+    // -- in 100% ; out 50%
+    $display("-- 2");
+    fork
+      for (int i=0; i<128; i++)
+        push(i);
+      for (int i=0; i<128; i++)
+      begin
+        pull();
+        @(posedge clk);
+      end
+    join
+    repeat(10) @(posedge clk);
+    // -- in 50% ; out 100%
+    $display("-- 3");
+    fork
+      for (int i=0; i<128; i++)
+      begin
+        push(i);
+        @(posedge clk);
+      end
+      for (int i=0; i<128; i++)
+        pull();
+    join
+    $finish();
   end
 
 endmodule
