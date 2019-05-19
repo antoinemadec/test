@@ -1,0 +1,16 @@
+#!/bin/bash
+
+usage() {
+  echo "usage: $0 <address> <data>"
+  exit 1
+}
+
+add="$1"
+data="$2"
+[ "$((add))" -eq "$((add))" ] &> /dev/null || usage
+[ "$((data))" -eq "$((data))" ] &> /dev/null || usage
+
+ip="$(grep "ip" server.txt | awk '{print $2}')"
+port="$(grep "port" server.txt | awk '{print $2}')"
+
+./client -a $ip -p $port -w $add -d $data
