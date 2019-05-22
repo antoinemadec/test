@@ -1,7 +1,15 @@
 #include "server.h"
 
-/* Server::Server(*name) : serverName(name) {} */
-Server::Server() {}
+std::set<char const *> Server::serverNameSet;
+
+Server::Server(char const *name) : serverName(name) {
+    if (Server::serverNameSet.find(name) != Server::serverNameSet.end())
+    {
+        fprintf(stderr, "Server name (%s) already exist, use another name\n", name);
+        exit(EXIT_FAILURE);
+    }
+    Server::serverNameSet.insert(name);
+}
 
 void Server::start() {
     int i = 0;
@@ -23,14 +31,16 @@ void Server::start() {
             break;
         i++;
     }
-    if (listen(server_fd, 3) < 0)
+    if (listen(server_fd, 8) < 0)
     {
         perror("listen");
         exit(EXIT_FAILURE);
     }
 
     // print server's ip and port
-    fp = fopen("server.txt", "w+");
+    char serverInfoFile[FILENAME_MAX_SIZE + 1];
+    snprintf(serverInfoFile, FILENAME_MAX_SIZE, "server_%s.txt", serverName);
+    fp = fopen(serverInfoFile, "w+");
     fprintf(fp, "ip: %s\n", getIp("eth0"));
     fprintf(fp, "port: %0d\n", port);
     fclose(fp);
@@ -40,19 +50,16 @@ int Server::acceptNewSocket() {
     return accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen);
 }
 
-char *Server::getIp(char *interface) {
+char const *Server::getIp(char const *interface) {
     struct ifaddrs *ifap, *ifa;
     struct sockaddr_in *sa;
-    char *addr;
     getifaddrs (&ifap);
     for (ifa = ifap; ifa; ifa = ifa->ifa_next) {
         if ((strcmp(interface, ifa->ifa_name) == 0) && (ifa->ifa_addr->sa_family==AF_INET)) {
             sa = (struct sockaddr_in *) ifa->ifa_addr;
-            addr = inet_ntoa(sa->sin_addr);
-            return addr;
+            return inet_ntoa(sa->sin_addr);
         }
     }
     freeifaddrs(ifap);
     return "127.0.0.1";
 }
-

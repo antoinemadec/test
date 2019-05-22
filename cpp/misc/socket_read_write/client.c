@@ -25,9 +25,9 @@ void usage(char * const argv[]) {
 
 int main(int argc, char * const argv[])
 {
-    int sock = 0, valread;
+    int sock = 0;
     struct sockaddr_in serv_addr;
-    char *server_address = "127.0.0.1";
+    char const *server_address = "127.0.0.1";
     int server_port = DEFAULT_PORT;
     uint32_t send_buf[3];
     // send_buf[0]: rwB
@@ -91,7 +91,7 @@ int main(int argc, char * const argv[])
     send(sock, send_buf, sizeof(send_buf), 0);
     if (send_buf[0] == 1) {
         // read command
-        valread = read( sock , read_buf, sizeof(read_buf));
+        read( sock , read_buf, sizeof(read_buf));
         printf("0x%x\n", read_buf[0]);
     }
     return 0;

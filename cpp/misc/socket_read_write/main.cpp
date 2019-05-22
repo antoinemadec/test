@@ -3,7 +3,6 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include "server.h"
 
 int main(int argc, char const *argv[])
@@ -16,18 +15,18 @@ int main(int argc, char const *argv[])
     // send_buf[0]: read data
     uint32_t mem[1024>>2];
 
-    Server *server = new Server();
+    Server *server = new Server("memAccess");
     server->start();
 
     // accept connection
-    int new_socket, valread;
+    int new_socket;
     while (1) {
         if ((new_socket = server->acceptNewSocket())<0)
         {
             sleep(1);
             continue;
         }
-        valread = read(new_socket , read_buf, sizeof(read_buf));
+        read(new_socket , read_buf, sizeof(read_buf));
         if (read_buf[0] == 0) {
             // write command
             mem[read_buf[1]>>2] = read_buf[2];
