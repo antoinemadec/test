@@ -5,7 +5,7 @@ std::set<char const *> Server::serverNameSet;
 Server::Server(char const *name) : serverName(name) {
     if (Server::serverNameSet.find(name) != Server::serverNameSet.end())
     {
-        fprintf(stderr, "Server name (%s) already exist, use another name\n", name);
+        fprintf(stderr, "ERROR: server name [%s] already exist, use another name\n", name);
         exit(EXIT_FAILURE);
     }
     Server::serverNameSet.insert(name);
@@ -16,6 +16,10 @@ void Server::start() {
     FILE *fp;
 
     // create server
+    if (serverIsRunning) {
+        fprintf(stderr, "ERROR: server [%s] start() has already been called\n", serverName);
+        exit(EXIT_FAILURE);
+    }
     if ((server_fd = socket(AF_INET, SOCK_NONBLOCK | SOCK_STREAM, 0)) == 0)
     {
         perror("socket failed");
@@ -36,6 +40,7 @@ void Server::start() {
         exit(EXIT_FAILURE);
     }
     serverIp = getIp();
+    serverIsRunning = true;
 
     // print server's ip and port
     snprintf(serverInfoFile, FILENAME_MAX_SIZE, "server_%s.txt", serverName);

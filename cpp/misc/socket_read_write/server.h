@@ -35,6 +35,7 @@ class Server {
         int server_fd;
         struct sockaddr_in address;
         int addrlen = sizeof(address);
+        bool serverIsRunning = false;
         char const *getIp();
         static std::set<char const *> serverNameSet;
 };
