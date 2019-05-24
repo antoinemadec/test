@@ -1,10 +1,3 @@
-/**TODO
- *  start(basePort=BASE_PORT)
- *  1 start per handle
- *  public: serverPort
- *  public: serverIP
- */
-
 #ifndef SERVER_H
 #define SERVER_H
 
@@ -34,6 +27,9 @@ class Server {
         void start();
         int acceptNewSocket();
         char const *serverName;
+        char const *serverIp;
+        int serverPort;
+        char serverInfoFile[FILENAME_MAX_SIZE + 1];
 
     private:
         int server_fd;

@@ -13,7 +13,6 @@ Server::Server(char const *name) : serverName(name) {
 
 void Server::start() {
     int i = 0;
-    int port;
     FILE *fp;
 
     // create server
@@ -25,8 +24,8 @@ void Server::start() {
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
     while (1) {
-        port = BASE_PORT + i;
-        address.sin_port = htons(port);
+        serverPort = BASE_PORT + i;
+        address.sin_port = htons(serverPort);
         if (bind(server_fd, (struct sockaddr *)&address, addrlen) >= 0)
             break;
         i++;
@@ -36,14 +35,15 @@ void Server::start() {
         perror("listen");
         exit(EXIT_FAILURE);
     }
+    serverIp = getIp();
 
     // print server's ip and port
-    char serverInfoFile[FILENAME_MAX_SIZE + 1];
     snprintf(serverInfoFile, FILENAME_MAX_SIZE, "server_%s.txt", serverName);
     fp = fopen(serverInfoFile, "w+");
-    fprintf(fp, "ip: %s\n", getIp());
-    fprintf(fp, "port: %0d\n", port);
+    fprintf(fp, "ip: %s\n", serverIp);
+    fprintf(fp, "port: %0d\n", serverPort);
     fclose(fp);
+    printf("Server: [%s] has started, info in %s\n", serverName, serverInfoFile);
 }
 
 int Server::acceptNewSocket() {
