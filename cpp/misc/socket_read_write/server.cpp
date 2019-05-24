@@ -41,7 +41,7 @@ void Server::start() {
     char serverInfoFile[FILENAME_MAX_SIZE + 1];
     snprintf(serverInfoFile, FILENAME_MAX_SIZE, "server_%s.txt", serverName);
     fp = fopen(serverInfoFile, "w+");
-    fprintf(fp, "ip: %s\n", getIp("eth0"));
+    fprintf(fp, "ip: %s\n", getIp());
     fprintf(fp, "port: %0d\n", port);
     fclose(fp);
 }
@@ -50,16 +50,18 @@ int Server::acceptNewSocket() {
     return accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen);
 }
 
-char const *Server::getIp(char const *interface) {
-    struct ifaddrs *ifap, *ifa;
-    struct sockaddr_in *sa;
-    getifaddrs (&ifap);
-    for (ifa = ifap; ifa; ifa = ifa->ifa_next) {
-        if ((strcmp(interface, ifa->ifa_name) == 0) && (ifa->ifa_addr->sa_family==AF_INET)) {
-            sa = (struct sockaddr_in *) ifa->ifa_addr;
-            return inet_ntoa(sa->sin_addr);
+char const *Server::getIp() {
+    setenv("LANG","C",1);
+    FILE * fp = popen("hostname -I", "r");
+    if (fp) {
+        char *p=NULL; size_t n;
+        while ((getline(&p, &n, fp) > 0) && p) {
+            char *pos;
+            if ((pos=strchr(p, '\n')) != NULL)
+                *pos = '\0';
+            return p;
         }
     }
-    freeifaddrs(ifap);
-    return "127.0.0.1";
+    pclose(fp);
+    return NULL;
 }

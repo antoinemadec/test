@@ -1,3 +1,10 @@
+/**TODO
+ *  start(basePort=BASE_PORT)
+ *  1 start per handle
+ *  public: serverPort
+ *  public: serverIP
+ */
+
 #ifndef SERVER_H
 #define SERVER_H
 
@@ -32,7 +39,7 @@ class Server {
         int server_fd;
         struct sockaddr_in address;
         int addrlen = sizeof(address);
-        char const *getIp(char const *interface);
+        char const *getIp();
         static std::set<char const *> serverNameSet;
 };
 #endif
