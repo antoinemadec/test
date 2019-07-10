@@ -1,0 +1,10 @@
+#!/bin/bash
+
+IESHOME=/opt/cadence/installs/XCELIUM1710
+
+mkdir -p output
+cp src/* output
+cd output
+
+gcc -o libdpi.so -g -shared -fPIC -DIXCOM_UXE -I${IESHOME}/tools/include dpi.c
+xrun +sv *.v -sv_lib libdpi.so -l /dev/null | tee xrun.log
