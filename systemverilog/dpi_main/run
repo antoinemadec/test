@@ -1,0 +1,13 @@
+#!/bin/bash
+
+rm -rf output
+mkdir -p output
+cp -rf src output
+cd output
+
+g++ -std=c++11 -o libdpi.so -g -shared -fPIC -DIXCOM_UXE  \
+  -I${IESHOME}/tools/include  \
+  -Isrc/cpp                   \
+  src/cpp/toto.cc
+
+xrun "$@" +sv src/v/* -sv_lib libdpi.so -l /dev/null | tee xrun.log
