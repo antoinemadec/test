@@ -1,0 +1,8 @@
+#!/bin/bash
+
+rm -rf output
+mkdir -p output
+cp -rf src output
+cd output
+
+xrun +sv src/v/*
