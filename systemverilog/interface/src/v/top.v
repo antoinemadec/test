@@ -1,5 +1,10 @@
+typedef struct packed {
+  logic [31:0] data;
+} data_s;
+
+
 interface foo_if(input clk);
-  wire [31:0] data_out;
+  wire data_s data_out;
 
   clocking drv_cb @(posedge clk);
     output data_out;
@@ -14,7 +19,7 @@ endinterface
 module mon(foo_if foo_if);
   always @(foo_if.mon_cb)
   begin
-    $display("data_out = 0x%x", foo_if.mon_cb.data_out);
+    $display("data_out = 0x%x", foo_if.mon_cb.data_out.data);
   end
 endmodule
 
@@ -39,7 +44,7 @@ module top();
     data_out = 32'hcafedeca;
     repeat (10)
     begin
-      foo_if.drv_cb.data_out <= data_out;
+      foo_if.drv_cb.data_out.data <= data_out;
       @(posedge clk);
       data_out ++;
     end
