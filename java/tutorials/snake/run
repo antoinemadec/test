@@ -1,0 +1,4 @@
+#!/bin/bash
+
+javac -d . src/com/zetcode/*
+java com.zetcode.Snake
