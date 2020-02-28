@@ -4,6 +4,7 @@ var personObject = {
   lastName : 'Smith'
 }
 
+// in JS, a dictionary is the same as an object
 // both '.' and [] can be used
 personObject.age = 23;
 personObject["salary"] = 14000;
