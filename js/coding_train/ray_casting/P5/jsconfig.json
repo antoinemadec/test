@@ -2,6 +2,5 @@
   "compilerOptions": {
     "module": "commonjs",
     "target": "es6"
-  },
-  "include": ["*", "/home/antoine/node_modules/@types/p5/global.d.ts"]
+  }
 }
