@@ -1,0 +1,18 @@
+service: numpy-test2
+frameworkVersion: '2'
+
+provider:
+  name: aws
+  runtime: python3.8
+
+
+functions:
+  numpy:
+    handler: handler.main
+
+plugins:
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    dockerizePip: non-linux
