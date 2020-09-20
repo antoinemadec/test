@@ -10,5 +10,10 @@ var ptr_anonymous = function(name) {
 
 var greet_cpy = greet;
 
+var arrow_func = (name) => {
+  return greet(name) + " (arrow func)"
+}
+
 console.log(ptr_anonymous("antoine"));
 console.log(greet_cpy("antoine"));
+console.log(arrow_func("antoine"))
