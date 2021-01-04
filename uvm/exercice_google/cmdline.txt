@@ -1,0 +1,1 @@
+qr7 irun -sv -uvm -uvmhome /amb/tools2/tv2/release/NCVerilog/IUS152s26/tools.lnx86/methodology/UVM/CDNS-1.1d  main.v dut.v -incdir include +access+r

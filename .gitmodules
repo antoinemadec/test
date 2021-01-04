@@ -1,6 +1,3 @@
-[submodule "uvm"]
-	path = uvm
-	url = https://bitbucket.org/antoinemadec/uvm
 [submodule "test"]
 	path = test
 	url = https://bitbucket.org/antoinemadec/test

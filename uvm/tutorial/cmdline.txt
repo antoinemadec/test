@@ -1,0 +1,1 @@
+irun -sv -uvm -uvmhome $INCISIVE15.20.010/tools/methodology/UVM/CDNS-1.2 hdl/design.sv testbench.sv -incdir include/
