@@ -11,10 +11,19 @@ module ram(input clk);
     $display("%m rdata=0x%x", data);
   endfunction
 
-  export "DPI" task test_access;
+  // function to be exported
   task test_access(bit[31:0] d);
     write(d);
     read();
+  endtask
+endmodule
+
+
+bind ram ram_dpi ram_dpi();
+module ram_dpi();
+  export "DPI" task test_access_dpi_sv;
+  task test_access_dpi_sv(bit[31:0] d);
+    test_access(d);
   endtask
 endmodule
 
