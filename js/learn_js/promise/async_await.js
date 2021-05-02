@@ -34,7 +34,7 @@ async function loadJson2(url) {
 //--------------------------------------------------------------
 
 
-async function exec(url) {
+async function execThen(url) {
   try {
     let r = await loadJson(url)
     console.log("[then]", r)
@@ -43,7 +43,7 @@ async function exec(url) {
   }
 }
 
-async function exec2(url) {
+async function execAwait(url) {
   try {
     let r = await loadJson2(url)
     console.log("[await]", r)
@@ -52,8 +52,12 @@ async function exec2(url) {
   }
 }
 
-exec('https://no-such-user.json')
-exec('https://raw.githubusercontent.com/neoclide/coc.nvim/master/tsconfig.json')
-exec2('https://no-such-user.json')
-exec2('https://raw.githubusercontent.com/neoclide/coc.nvim/master/tsconfig.json')
-console.log('hi')
+async function main() {
+  execThen('https://no-such-user.json')
+  execThen('https://raw.githubusercontent.com/neoclide/coc.nvim/master/tsconfig.json')
+  execAwait('https://no-such-user.json')
+  execAwait('https://raw.githubusercontent.com/neoclide/coc.nvim/master/tsconfig.json')
+  console.log('hi')
+}
+
+main()
