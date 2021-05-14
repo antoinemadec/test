@@ -1,3 +1,5 @@
+// https://doc.rust-lang.org/stable/book/ch03-02-data-types.html
+
 fn main() {
     let c: char = 'z';
     let heart_eyed_cat: char = '😻'; // char is on 4 bytes
