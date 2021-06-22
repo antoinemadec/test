@@ -129,8 +129,9 @@ class Interpreter:
         cnt = 0
         for i, token in enumerate(e):
             if token == '(':
+                if cnt == 0:
+                    j = i
                 cnt += 1
-                j = i
             elif token == ')':
                 cnt -= 1
                 if cnt == 0:
@@ -144,6 +145,9 @@ class Interpreter:
         for i, token in enumerate(e):
             if token in ('+', '-'):
                 return (i-1, i+1)
+        for i, token in enumerate(e):
+            if token in ('='):
+                return (i-1, i+1)
         raise Exception('ERROR')
 
     def find_highest_priority_indexes(self, e):
@@ -152,15 +156,17 @@ class Interpreter:
             idx = self.find_first_exp_op_exp(e)
         return idx
 
-    def cleanup_expression(self, e):
-        # remove external parenthesis is any
-        while e[0] == '(' and e[-1] == ')':
+    def remove_external_parenthesis(self, e):
+        idx = self.find_first_parenthesis_pair(e)
+        if idx and idx[0] == 0 and idx[1] == (len(e) - 1):
             del e[0]
             del e[-1]
 
     def solve_expression(self, exp):
-        self.cleanup_expression(exp)
+        if len(exp) == 0:
+            return ""
 
+        self.remove_external_parenthesis(exp)
         # final expression
         if len(exp) == 1:
             return self.resolve_digit_or_identifier(exp[0])
@@ -211,3 +217,12 @@ run_test("x = 1")
 run_test("x")
 run_test("x + 3")
 # test.expect_error("input: 'y'", lambda: interpreter.input("y"))
+
+run_test("  ")
+run_test("(7 + 3) / (2 * 2 + 1)")
+run_test("(8 - (4 + 2)) * 3")
+try:
+    run_test("y")
+except:
+    print("ERROR")
+run_test("y = x + 4")
