@@ -1,101 +1,83 @@
-class tictactoe;
-  rand bit [1:0] ttt[9];
+class ttt;
+  typedef enum {X, O, NONE} ttt_value_t;
+  
+  rand ttt_value_t tab[3][3];
 
-  // used for computation
-  rand bit [1:0] win_mask;
-  rand bit       O_win;
-  rand bit       X_win;
-  rand int       O_nb;
-  rand int       X_nb;
-
-  // for stats
-  int O_win_cnt;
-  int X_win_cnt;
-  int tie_cnt;
+  // compute variables
+  rand int X_cnt;
+  rand int O_cnt;
+  rand bit X_has_won;
+  rand bit O_has_won;
 
   constraint c {
-    // each square is either empty, X or O
-    foreach (ttt[i])
-      ttt[i] != 2'b11;
-    // compute win
-    win_mask == (
-      (ttt[0] & ttt[1] & ttt[2])  | // hori 0
-      (ttt[3] & ttt[4] & ttt[5])  | // hori 1
-      (ttt[6] & ttt[7] & ttt[8])  | // hori 2
-      (ttt[0] & ttt[3] & ttt[6])  | // vert 0
-      (ttt[1] & ttt[4] & ttt[7])  | // vert 1
-      (ttt[2] & ttt[5] & ttt[8])  | // vert 2
-      (ttt[0] & ttt[4] & ttt[8])  | // diag 0
-      (ttt[2] & ttt[4] & ttt[6])    // diag 1
-    );
-    win_mask != 2'b11;
-    O_win == win_mask[0];
-    X_win == win_mask[1];
-    // check O and X numbers
-    O_nb == ttt.sum() with (int'(item[0]));
-    X_nb == ttt.sum() with (int'(item[1]));
-    O_nb <= X_nb + 1 - X_win;
-    X_nb <= O_nb + 1 - O_win;
+    X_cnt == count_in_tab(tab, X);
+    O_cnt == count_in_tab(tab, O);
+    X_cnt >= O_cnt - (X_has_won ? 0:1);
+    O_cnt >= X_cnt - (O_has_won ? 0:1);
+
+    X_has_won == has_won_in_tab(tab, X);
+    O_has_won == has_won_in_tab(tab, O);
+    !X_has_won || !O_has_won;
   }
 
-  function post_randomize();
-    if (O_win)
-      O_win_cnt++;
-    else if (X_win)
-      X_win_cnt++;
-    else tie_cnt++;
-  endfunction
+  function int count_in_tab(ttt_value_t tab[3][3], ttt_value_t val);
+    count_in_tab = 0;
+    foreach(tab[i])
+      foreach(tab[i][j])
+        if (tab[i][j] == val)
+          count_in_tab ++;
+    return count_in_tab;
+  endfunction: count_in_tab
 
-  function void disp();
-    if (O_win)
-      $display("O wins");
-    else if (X_win)
-      $display("X wins");
-    else
-      $display("tie");
-    foreach (ttt[i])
-    begin
-      string square_str;
-      square_str = ".";
-      assert (ttt[i] != 2'b11);
-      if (ttt[i][0])
-        square_str = "O";
-      else if (ttt[i][1])
-        square_str = "X";
-      $write("%0s%0s", square_str, (i%3 == 2) ?"\n":" | ");
+  function bit has_won_in_tab(ttt_value_t tab[3][3], ttt_value_t val);
+    int cnt[7] = '{default: 0};
+    has_won_in_tab = 0;
+    for (int i = 0; i < 3; i++) begin
+      for (int j = 0; j < 3; j++) begin
+        if (tab[i][j] == val) begin
+          cnt[i] ++;
+          cnt[j+3] ++;
+          if (i == j) begin
+            cnt[6] ++;
+          end
+        end
+      end
     end
-  endfunction
-
-endclass
-
-
-module main();
-  bit clk;
-  initial
-  forever #5 clk = ~clk;
-
-  tictactoe t;
-
-  initial
-  begin
-    t = new();
-    repeat (100000)
-    begin
-      assert(t.randomize());
-      t.disp();
-      $display("");
+    foreach (cnt[i]) begin
+      if (cnt[i] == 3) begin
+        has_won_in_tab = 1;
+      end
     end
-    $display("#------------------------------------------------");
-    $display("# O=%0d : X=%0d (tie=%0d)", t.O_win_cnt, t.X_win_cnt, t.tie_cnt);
-    $display("#------------------------------------------------");
-    $display("");
-    $finish();
-  end
+    return has_won_in_tab;
+  endfunction: has_won_in_tab
 
-  initial
-  begin
-    // simvision
-    $shm_open("waves.shm");
-    $shm_probe("ACMTF");
+  function string enum_to_char(ttt_value_t val);
+    enum_to_char = ".";
+    if (val != NONE) begin
+      enum_to_char = val.name();
+    end
+    return enum_to_char;
+  endfunction: enum_to_char
+
+  function void print();
+    foreach(tab[i])
+      $display("%s %s %s",
+        enum_to_char(tab[i][0]), enum_to_char(tab[i][1]), enum_to_char(tab[i][2]));
+  endfunction: print
+
+endclass : ttt
+
+
+module main ();
+  initial begin
+    ttt h;
+    h = new();
+    repeat (100) begin
+      assert(randomize(h));
+      $display("-----------------------------------------------");
+      $display("cnt(X,O)=(%0d,%0d)", h.X_cnt, h.O_cnt);
+      $display("score(X,O)=(%0d,%0d)\n", h.X_has_won, h.O_has_won);
+      h.print();
+    end
   end
 endmodule
