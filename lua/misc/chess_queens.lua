@@ -1,9 +1,11 @@
 #!/usr/bin/env lua
 
 ---@diagnostic disable: lowercase-global
+ins = require('inspect')
 
 -- let's place N queens on a NxN chess board so the cannot attack each other
-N=100
+-- 2min40s
+N=31
 
 -- simplify the problem using diagonal coordinates (diag1, diag2)
 --  diag1 goes from the upper-left to the lower-right
@@ -73,33 +75,62 @@ end
 
 function place_N_queens()
   local d2_from_d1 = deepcopy(available_diag2_from_diag1)
+  local col_is_available = {}
+  local row_is_available = {}
+  for i=0,N-1 do
+    col_is_available[i] = true
+    row_is_available[i] = true
+  end
   local queens_coords = {}
 
-  for i=1,N do
-    local d = {-1, -1}
+  local i = 0
+  local tries = 0
+  while i<N do
+    local d = {}
+    local c = {}
+    local available_diag2 = {}
+
+    -- no more option
+    if #d2_from_d1 == 0 then
+      return queens_coords
+    end
 
     -- find d1
     d[1] = math.randomkey(d2_from_d1)
-    -- remove d1 entry from table d2_from_d1
-    local available_diag2 = d2_from_d1[d[1]]
-    d2_from_d1[d[1]] = nil
 
     -- find d2
+    available_diag2 = d2_from_d1[d[1]]
     d[2] = math.randomval(available_diag2)
-    -- remove all item matching d2 in table d2_from_d1
-    for d1,av_d2 in pairs(d2_from_d1) do
-      for k,d2 in pairs(av_d2) do
-        if d2 == d[2] then
-          av_d2[k] = nil
+
+    -- change coord back to cartesian, are row/col are available ?
+    c = diag_to_cartesian(d)
+    if col_is_available[c[1]] and row_is_available[c[2]] then
+      -- remove col/row
+      col_is_available[c[1]] = false
+      row_is_available[c[2]] = false
+      -- remove d1 entry from table d2_from_d1
+      d2_from_d1[d[1]] = nil
+      -- remove all item matching d2 in table d2_from_d1
+      for d1,av_d2 in pairs(d2_from_d1) do
+        for k,d2 in pairs(av_d2) do
+          if d2 == d[2] then
+            av_d2[k] = nil
+          end
+        end
+        if #av_d2 == 0 then
+          d2_from_d1[d1] = nil
         end
       end
-      if #av_d2 == 0 then
-        d2_from_d1[d1] = nil
-      end
+      -- place 1 queen
+      table.insert(queens_coords, c)
+      i = i + 1
     end
 
-    -- change coord back to cartesian
-    queens_coords[i] = diag_to_cartesian(d)
+    -- just in case
+    tries = tries + 1
+    if tries > N*N then
+      return queens_coords
+    end
   end
 
   return queens_coords
@@ -110,6 +141,11 @@ end
 -- functions
 ---------------------------------------------------------------
 gen_available_diag2_from_diag1()
-coords = place_N_queens()
--- ins = require('inspect')
--- print(ins(coords))
+while true do
+  coords = place_N_queens()
+  if #coords == N then
+    break
+  end
+end
+print(#coords .. " queens were placed")
+print(ins(coords))

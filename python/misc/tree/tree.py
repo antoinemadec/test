@@ -10,7 +10,7 @@ class Node:
     def add_child(self, child: 'Node', weight: int):
         self.child_weight_list.append((child, weight))
 
-    @lru_cache(maxsize=None)    
+    @lru_cache(maxsize=None)
     def find_heaviest_branch(self) -> (int, str):
         if not self.child_weight_list:
             return (0, self.name)
@@ -22,7 +22,7 @@ class Node:
                 total_weight = child_weight + branch_weight
                 if total_weight > max_weight:
                     max_weight = total_weight
-                    max_weight_str = f"{self.name}->{branch_str}" 
+                    max_weight_str = f"{self.name}->{branch_str}"
             return (max_weight, max_weight_str)
 
 
