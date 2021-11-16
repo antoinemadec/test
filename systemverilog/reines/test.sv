@@ -1,9 +1,12 @@
 class queens;
-  localparam N = 100;
+  localparam N = 8;
 
   rand bit arr[N][N];
 
   constraint c {
+    // N queens
+    arr.sum(item1d) with (item1d.sum(item2d) with (int'(item2d))) == N;
+
     foreach (arr[i, j]) {
       if (arr[i][j] == 1) {
         // only one 1 in a col
