@@ -1,0 +1,20 @@
+#!/bin/bash
+
+set -e
+
+mkdir -p output
+cp -rf src/* output
+cd output
+
+# compile client
+cd client
+g++ client.c -o client
+cd ..
+
+# compile server + DPI
+cd server
+g++ -o libdpi.so -g -shared -fPIC -m32 -I${CDS_INST_DIR}/tools/include dpi.cpp server.cpp server.h
+cd ..
+
+# run simu with DPI
+unbuffer xrun +sv server/top.sv -sv_lib server/libdpi.so -l /dev/null | tee xrun.log

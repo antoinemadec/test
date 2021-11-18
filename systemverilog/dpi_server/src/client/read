@@ -1,0 +1,16 @@
+#!/bin/bash
+
+FILE="../server_RW.txt"
+
+usage() {
+  echo "usage: $0 <address>"
+  exit 1
+}
+
+add="$1"
+[ "$((add))" -eq "$((add))" ] &> /dev/null || usage
+
+ip="$(grep "ip" "$FILE" | awk '{print $2}')"
+port="$(grep "port" "$FILE" | awk '{print $2}')"
+
+./client -a $ip -p $port -r $add
