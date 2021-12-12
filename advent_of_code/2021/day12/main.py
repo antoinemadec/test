@@ -27,7 +27,7 @@ class Paths:
     def populate_caves(self, lines):
         for l in lines:
             names = l.split('-')
-            for name in l.split('-'):
+            for name in names:
                 if name not in self.caves:
                     self.caves[name] = Cave(name)
                 self.caves[name].add_connection(names)
