@@ -5,3 +5,5 @@ xrun.history
 irun.log
 xrun.log
 waves.shm
+output/
+.simvision/
