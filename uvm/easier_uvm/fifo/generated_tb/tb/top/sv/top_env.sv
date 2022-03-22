@@ -7,6 +7,7 @@ class top_env extends uvm_env;
 
   extern function new(string name, uvm_component parent);
 
+  top_scoreboard       m_top_scoreboard;
 
   // Child agents
   fifo_in_config     m_fifo_in_config;   
@@ -38,6 +39,8 @@ function void top_env::build_phase(uvm_phase phase);
   if (!uvm_config_db #(top_config)::get(this, "", "config", m_config)) 
     `uvm_error(get_type_name(), "Unable to get top_config")
 
+  uvm_config_db #(top_config)::set(this, "m_top_scoreboard", "config", m_config);
+
   m_fifo_in_config = m_config.m_fifo_in_config;
 
   uvm_config_db #(fifo_in_config)::set(this, "m_fifo_in_agent", "config", m_fifo_in_config);
@@ -53,6 +56,8 @@ function void top_env::build_phase(uvm_phase phase);
   uvm_config_db #(fifo_out_config)::set(this, "m_fifo_out_coverage", "config", m_fifo_out_config);
 
 
+  m_top_scoreboard    = top_scoreboard   ::type_id::create("m_top_scoreboard",this);
+
   m_fifo_in_agent     = fifo_in_agent    ::type_id::create("m_fifo_in_agent", this);
   m_fifo_in_coverage  = fifo_in_coverage ::type_id::create("m_fifo_in_coverage", this);
 
@@ -66,9 +71,10 @@ function void top_env::connect_phase(uvm_phase phase);
   `uvm_info(get_type_name(), "In connect_phase", UVM_HIGH)
 
   m_fifo_in_agent.analysis_port.connect(m_fifo_in_coverage.analysis_export);
+  m_fifo_in_agent.analysis_port.connect(m_top_scoreboard.fifo_in_to_scoreboard);
 
   m_fifo_out_agent.analysis_port.connect(m_fifo_out_coverage.analysis_export);
-
+  m_fifo_out_agent.analysis_port.connect(m_top_scoreboard.fifo_out_to_scoreboard);
 
 endfunction : connect_phase
 

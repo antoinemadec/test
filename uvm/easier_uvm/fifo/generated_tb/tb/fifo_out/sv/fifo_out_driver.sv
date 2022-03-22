@@ -26,9 +26,13 @@ endfunction : new
 task fifo_out_driver::run_phase(uvm_phase phase);
   `uvm_info(get_type_name(), "run_phase", UVM_HIGH)
 
+  vif.cb.data_out_rdy <= 1'b0;
+  @(vif.cb);
+
   forever
   begin
     seq_item_port.get_next_item(req);
+    `uvm_info(get_type_name(), {"req item\n",req.sprint}, UVM_DEBUG)
     do_drive();
     seq_item_port.item_done();
   end
@@ -38,7 +42,7 @@ endtask : run_phase
 task fifo_out_driver::do_drive();
   vif.cb.data_out_rdy <= 1'b1;
   @(vif.cb);
-  while (!vif.data_out_vld) begin
+  while (vif.cb.data_out_vld !== 1) begin
     @(vif.cb);
   end
   vif.cb.data_out_rdy <= 1'b0;

@@ -39,7 +39,7 @@ endtask : run_phase
 task fifo_out_monitor::do_mon();
   forever begin
     @(vif.cb);
-    while (!(vif.cb.data_out_vld && vif.cb.data_out_rdy)) begin
+    while (!(vif.cb.data_out_vld === 1'b1 && vif.cb.data_out_rdy === 1'b1)) begin
       @(vif.cb);
     end
     m_trans.data = vif.cb.data_out;
