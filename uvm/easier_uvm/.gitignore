@@ -8,3 +8,6 @@ xcelium.d/
 xrun.history
 xrun.key
 xrun.log
+cov_work/
+imc.log
+mdv.log
