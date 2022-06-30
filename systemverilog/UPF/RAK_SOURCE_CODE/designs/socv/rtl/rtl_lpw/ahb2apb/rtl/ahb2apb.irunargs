@@ -1,0 +1,4 @@
+-incdir ${RAK_SOURCE_CODE}/designs/socv/rtl/rtl_lpw/ahb2apb/rtl
+
+ahb2apb.v
+

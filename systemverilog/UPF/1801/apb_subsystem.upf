@@ -1,0 +1,212 @@
+##############################################################
+#
+# POWER SUPPLY NETWORK - DEFINE SUPPLY PORTS 
+#
+##############################################################
+create_supply_port VDD
+create_supply_port VSS
+create_supply_port VDD_SMC
+
+
+##############################################################
+#
+# POWER SUPPLY NETWORK - DEFINE SUPPLY NETS 
+#
+##############################################################
+create_supply_net VDD
+create_supply_net VSS
+create_supply_net VDD_SMC
+create_supply_net VDD_SMC_sw
+create_supply_net VDD_URT_sw
+
+
+##############################################################
+#
+# POWER SUPPLY NETWORK - CONNECT SUPPLY NETS TO SUPPLY PORTS 
+#
+##############################################################
+connect_supply_net VDD -ports VDD
+connect_supply_net VSS -ports VSS
+connect_supply_net VDD_SMC -ports VDD_SMC
+
+
+##############################################################
+#
+# POWER SUPPLY NETWORK - CREATE SUPPLY SETS 
+#
+##############################################################
+create_supply_set SS_AON \
+                  -function {power VDD} \
+                  -function {ground VSS}
+
+create_supply_set SS_URT \
+                  -function {power VDD} \
+                  -function {ground VSS}
+
+create_supply_set SS_URT_sw \
+                  -function {power VDD_URT_sw} \
+                  -function {ground VSS}
+
+create_supply_set SS_SMC \
+                  -function {power VDD_SMC} \
+                  -function {ground VSS}
+
+create_supply_set SS_SMC_sw \
+                  -function {power VDD_SMC_sw} \
+                  -function {ground VSS}
+
+##############################################################
+# CREATE POWER DOMAINS                                
+#                                                     
+#  Domain PDcore  - Top-level power domain            
+#  Domain PDsmc   - Switchable power domain for SMC   
+#  Domain PDurt   - Switchable power domain for UART1 
+##############################################################
+create_power_domain PDcore \
+                    -include_scope \
+                    -supply {primary SS_AON}
+       
+create_power_domain PDsmc \
+                    -elements i_smc_veneer/i_smc_lite \
+	            -supply {primary SS_SMC_sw}
+
+create_power_domain PDurt \
+                    -elements i_oc_uart1 \
+	            -supply {primary SS_URT_sw}
+
+
+##############################################################
+#
+# POWER SUPPLY NETWORK - CREATE POWER SWITCHES 
+#
+##############################################################
+create_power_switch ps_PDurt \
+        -domain PDurt \
+        -input_supply_port  {VDDin VDD} \
+	-output_supply_port {VDDout VDD_URT_sw} \
+	-control_port       {enable i_power_ctrl_veneer/i_power_ctrl/pwr1_off_urt} \
+	-on_state           {on_state VDDin {!enable}} \
+	-off_state          {off_state {enable}}
+
+create_power_switch ps_PDsmc \
+        -domain PDsmc \
+        -input_supply_port  {VDDin VDD_SMC} \
+	-output_supply_port {VDDout VDD_SMC_sw} \
+	-control_port       {enable i_power_ctrl_veneer/i_power_ctrl/pwr1_off_smc} \
+	-on_state           {on_state VDDin {!enable}} \
+	-off_state          {off_state {enable}}
+
+
+##############################################################
+#
+# POWER SUPPLY NETWORK - DEFINE POWER STATES   
+#
+##############################################################
+add_power_state SS_AON \
+	-state PDs_ON  {-supply_expr {power == `{FULL_ON, 1.2}} -simstate NORMAL} \
+	-state PDs_OFF {-supply_expr {power == `{OFF}} -simstate CORRUPT}
+
+add_power_state SS_URT \
+	-state URT_ON  {-supply_expr {power == `{FULL_ON, 1.2}} -simstate NORMAL} \
+	-state URT_OFF {-supply_expr {power == `{OFF}} -simstate CORRUPT}
+
+add_power_state SS_SMC \
+	-state SMC_ON  {-supply_expr {power == `{FULL_ON, 1.2}} -simstate NORMAL} \
+        -state SMC_OFF {-supply_expr {power == `{OFF}} -simstate CORRUPT} 
+
+
+##############################################################
+#
+# DEFINE STATE RETENTION STRATEGY   
+#
+##############################################################
+set_retention SMC_retn_rule -domain PDsmc \
+        -elements i_smc_veneer/i_smc_lite \
+        -retention_supply_set {SS_SMC} \
+        -restore_signal  {i_power_ctrl_veneer/i_power_ctrl/restore_edge_smc high} \
+        -save_signal     {i_power_ctrl_veneer/i_power_ctrl/save_edge_smc high}        
+
+
+set_retention URT_retn_rule -domain PDurt \
+        -elements {    i_oc_uart1/wb_interface \
+                       i_oc_uart1/regs/transmitter \
+                       i_oc_uart1/regs/receiver \
+                       i_oc_uart1/regs \
+                   } \
+        -retention_supply_set {SS_URT} \
+        -restore_signal  {i_power_ctrl_veneer/i_power_ctrl/restore_edge_urt high} \
+        -save_signal     {i_power_ctrl_veneer/i_power_ctrl/save_edge_urt high}        
+
+
+##############################################################
+#
+# DEFINE ISOLATION STRATEGY 
+#
+#############################################################
+# Isolation rules (low) for smc
+set_isolation iso_smc_low \
+        -domain PDsmc \
+        -elements { i_smc_veneer/i_smc_lite/prdata \
+                       i_smc_veneer/i_smc_lite/smc_hrdata \
+                       i_smc_veneer/i_smc_lite/smc_hresp \
+                       i_smc_veneer/i_smc_lite/smc_addr[0] \
+                       i_smc_veneer/i_smc_lite/smc_addr[1] \
+                       i_smc_veneer/i_smc_lite/smc_addr[2] \
+                       i_smc_veneer/i_smc_lite/smc_addr[3] \
+                       i_smc_veneer/i_smc_lite/smc_addr[4] \
+                       i_smc_veneer/i_smc_lite/smc_addr[5] \
+                       i_smc_veneer/i_smc_lite/smc_addr[6] \
+                       i_smc_veneer/i_smc_lite/smc_addr[7] \
+                       i_smc_veneer/i_smc_lite/smc_addr[8] \
+                       i_smc_veneer/i_smc_lite/smc_addr[9] \
+                       i_smc_veneer/i_smc_lite/smc_addr[10] \
+                       i_smc_veneer/i_smc_lite/smc_addr[11] \
+                       i_smc_veneer/i_smc_lite/smc_addr[12] \
+                       i_smc_veneer/i_smc_lite/smc_addr[13] \
+                       i_smc_veneer/i_smc_lite/smc_addr[14] \
+                       i_smc_veneer/i_smc_lite/smc_addr[15] \
+                       i_smc_veneer/i_smc_lite/smc_data \
+                     } \
+        -clamp_value 0 \
+        -isolation_supply_set {SS_SMC} \
+        -isolation_signal {i_power_ctrl_veneer/i_power_ctrl/isolate_smc} \
+        -isolation_sense high
+
+# Isolation rules (high) for smc
+set_isolation iso_smc_hi \
+        -domain PDsmc \
+        -elements { i_smc_veneer/i_smc_lite/smc_n_be \
+                       i_smc_veneer/i_smc_lite/smc_n_cs \
+                       i_smc_veneer/i_smc_lite/smc_n_we \
+                       i_smc_veneer/i_smc_lite/smc_n_wr \
+                       i_smc_veneer/i_smc_lite/smc_n_rd \
+                       i_smc_veneer/i_smc_lite/smc_n_ext_oe \
+                       i_smc_veneer/i_smc_lite/smc_hready \
+                      } \
+        -clamp_value 1 \
+        -isolation_supply_set {SS_SMC} \
+        -isolation_signal {i_power_ctrl_veneer/i_power_ctrl/isolate_smc} \
+        -isolation_sense high
+
+# Isolation rule (low) for uart
+set_isolation iso_urt_low \
+        -domain PDurt \
+        -elements { i_oc_uart1/wb_dat_o \
+                    i_oc_uart1/wb_ack_o \
+                    i_oc_uart1/int_o \
+                  } \
+        -clamp_value 0 \
+        -isolation_supply_set {SS_URT} \
+        -isolation_signal {i_power_ctrl_veneer/i_power_ctrl/isolate_urt} \
+        -isolation_sense high
+
+# Isolation rule (high) for uart
+set_isolation iso_urt_hi \
+        -domain PDurt \
+        -elements { i_oc_uart1/rts_pad_o \
+                    i_oc_uart1/stx_pad_o \
+                  } \
+        -clamp_value 1 \
+        -isolation_supply_set {SS_URT} \
+        -isolation_signal {i_power_ctrl_veneer/i_power_ctrl/isolate_urt} \
+        -isolation_sense high

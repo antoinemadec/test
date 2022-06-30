@@ -1,0 +1,3 @@
+set_design_top apb_subsystem_top -testbench
+load_upf ./1801/apb_subsystem.upf -scope i_apb_subsystem
+create_assertion_control -name ac_simu -domains {i_apb_subsystem/PDurt}
