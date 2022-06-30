@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 INPUT_DELAY=0.2
-GRID_SIZE=40
+GRID_SIZE=20
 
 color_red=$(tput setaf 1)
 color_green=$(tput setaf 2)
@@ -9,8 +9,9 @@ color_yellow=$(tput setaf 3)
 color_blue=$(tput setaf 4)
 color_normal=$(tput sgr0)
 
-fruit_coord="10,10"
-snake_coords=("20,20" "20,21" "20,22")
+fruit_coord="1,1"
+x=$((GRID_SIZE/2))
+snake_coords=("$x,$x" "$x,$((x+1))" "$x,$((x+2))")
 
 
 #--------------------------------------------------------------
@@ -112,7 +113,7 @@ set_new_fruit() {
   local y
   x=$(($RANDOM % GRID_SIZE))
   y=$(($RANDOM % GRID_SIZE))
-  while coord_is_in_snake $x $y; do
+  while coord_is_in_snake $x $y || coord_is_wall $x $y; do
     x=$(($RANDOM % GRID_SIZE))
     y=$(($RANDOM % GRID_SIZE))
   done
@@ -146,7 +147,7 @@ next_state() {
   new_y=$((y+dy))
   new_head_coord="$new_x,$new_y"
   if coord_is_in_snake $new_x $new_y || coord_is_wall $new_x $new_y; then
-    echo "YOU LOOSE"
+    echo "YOU LOSE"
     exit 1
   fi
 
