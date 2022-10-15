@@ -27,13 +27,23 @@ def get_pod_thrust(p, target_x, target_y):
 
     if abs_deg >= 90:
         t = 0
-    elif target_dist < 1200 and p['cp_dist'] < 1000 and p['speed'] < 210 and target_angle > 75:
+    elif target_dist < 1400 and p['cp_dist'] < 1000 and p['speed'] < 270 and target_angle > 75:
         print(f"{p['name']=} STUCK", file=sys.stderr, flush=True)
         t = 50
     else:
         t = int(100*abs(math.cos(math.radians(abs_deg/4))))
     return t if t < 98 else "BOOST"
 
+
+def pods_will_collide(p0, p1, turn_nb=1):
+    np0_x = p0['x'] + turn_nb*p0['vx']
+    np0_y = p0['y'] + turn_nb*p0['vy']
+    np1_x = p1['x'] + turn_nb*p1['vx']
+    np1_y = p1['y'] + turn_nb*p1['vy']
+    dist = get_dist(np0_x - np1_x, np0_y - np1_y)
+    if dist <= 800:
+        return True
+    return False
 
 def compute_pods_info(pods, prev_pods):
     global lap_nb
@@ -84,6 +94,9 @@ def print_pods(pods):
                 target_x = op['cp_x'] - 4*p['vx']
                 target_y = op['cp_y'] - 4*p['vy']
             thrust = get_pod_thrust(p, target_x, target_y)
+            if pods_will_collide(pods['pod1'], pods['pod2'], 3):
+                print(f"AVOID", file=sys.stderr, flush=True)
+                thrust = 0
         # racer
         else:
             op = pods[worst_op]
@@ -111,11 +124,8 @@ def print_pods(pods):
         dist_op1 = get_pod_dist(p, pods['op1']['x'], pods['op1']['y'])
         dist_op2 = get_pod_dist(p, pods['op2']['x'], pods['op2']['y'])
         closest_op = 'op1' if dist_op1 < dist_op2 else 'op2'
-        dist_closest_op = min(dist_op1, dist_op2)
         relative_speed_closest_op = get_dist(p['vx']-pods[closest_op]['vx'], p['vy']-pods[closest_op]['vy'])
-        print(f"{p['name']=} {closest_op=} {dist_closest_op=} {relative_speed_closest_op=}", file=sys.stderr, flush=True)
-        if dist_closest_op < 1550 and relative_speed_closest_op > 700:
-            print(f"SHIELD", file=sys.stderr, flush=True)
+        if pods_will_collide(p, pods[closest_op]) and relative_speed_closest_op > 450:
             thrust = "SHIELD"
 
         print(f"{target_x} {target_y} {thrust}")
