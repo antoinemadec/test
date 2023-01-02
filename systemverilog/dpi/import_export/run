@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -e
+
+mkdir -p output
+cp src/* output
+cd output
+
+gcc -o libdpi.so -g -shared -fPIC -m32 -I${CDS_INST_DIR}/tools/include dpi.c
+xrun +sv *.sv -sv_lib libdpi.so -l /dev/null | tee xrun.log
