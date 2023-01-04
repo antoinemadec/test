@@ -6,15 +6,32 @@ mkdir -p output
 cp -rf src/* output
 cd output
 
-# compile client
-cd client
-g++ client.c -o client
-cd ..
+run_xrun() {
+  # compile client
+  cd client
+  g++ client.c -o client
+  cd ..
+  # compile server + DPI
+  cd server
+  g++ -o libdpi.so -g -shared -fPIC -m32 -I${CDS_INST_DIR}/tools/include dpi.cpp server.cpp server.h
+  cd ..
+  # run simu with DPI
+  unbuffer xrun +sv server/top.sv -sv_lib server/libdpi.so -l /dev/null | tee xrun.log
+}
 
-# compile server + DPI
-cd server
-g++ -o libdpi.so -g -shared -fPIC -m32 -I${CDS_INST_DIR}/tools/include dpi.cpp server.cpp server.h
-cd ..
+run_vcs() {
+  # compile client
+  cd client
+  g++ client.c -o client
+  cd ..
+  # compile server + DPI
+  cd server
+  g++ -o libdpi.so -g -shared -fPIC -m64 -I${VCS_HOME}/include dpi.cpp server.cpp server.h
+  cd ..
+  # run simu with DPI
+  vcs -q -l compile.log -sverilog -kdb -debug_access+all server/top.sv
+  ./simv -l run.log -sv_lib server/libdpi
+}
 
-# run simu with DPI
-unbuffer xrun +sv server/top.sv -sv_lib server/libdpi.so -l /dev/null | tee xrun.log
+type xrun &>/dev/null && run_xrun
+type vcs &>/dev/null && run_vcs

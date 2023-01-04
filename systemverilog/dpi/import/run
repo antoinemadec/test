@@ -2,9 +2,20 @@
 
 set -e
 
+run_xrun() {
+  gcc -o libdpi.so -g -shared -fPIC -m32 -I${CDS_INST_DIR}/tools/include dpi.c
+  xrun +sv *.sv -sv_lib libdpi.so -l /dev/null | tee xrun.log
+}
+
+run_vcs() {
+  gcc -o libdpi.so -g -shared -fPIC -m64 -I${VCS_HOME}/include dpi.c
+  vcs -q -l compile.log -sverilog -kdb -debug_access+all *.sv
+  ./simv -l run.log -sv_lib libdpi
+}
+
 mkdir -p output
 cp src/* output
 cd output
 
-gcc -o libdpi.so -g -shared -fPIC -m32 -I${CDS_INST_DIR}/tools/include dpi.c
-xrun +sv *.sv -sv_lib libdpi.so -l /dev/null | tee xrun.log
+type xrun &>/dev/null && run_xrun
+type vcs &>/dev/null && run_vcs
