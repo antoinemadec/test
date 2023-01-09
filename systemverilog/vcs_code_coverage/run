@@ -2,15 +2,22 @@
 
 set -e
 
+rm -rf output
 mkdir -p output
+
 cp *v output
 cp cm_hier.file output
 cd output
 
+# simulation
 vcs -q -l compile.log                       \
   -sverilog -kdb -debug_access+all *.sv *.v \
-  -cm tgl -cm_hier cm_hier.file
+  -cm tgl \
+  -cm_hier cm_hier.file -cm_tgl portsonly
 
 ./simv -l run.log \
   -cm tgl         \
   $@
+
+# coverage viewer
+vdCov -covdir simv.vdb/

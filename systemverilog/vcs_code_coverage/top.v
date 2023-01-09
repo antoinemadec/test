@@ -5,6 +5,8 @@ module top_core(
   output reg [7:0] n2
 );
 
+  wire [4:0] n_dummy = n;
+
 always_ff @(posedge clk) begin
   if (rstn) begin
     n2 <= n*n;
