@@ -1,0 +1,16 @@
+#!/bin/bash
+
+set -e
+
+mkdir -p output
+cp *v output
+cp cm_hier.file output
+cd output
+
+vcs -q -l compile.log                       \
+  -sverilog -kdb -debug_access+all *.sv *.v \
+  -cm tgl -cm_hier cm_hier.file
+
+./simv -l run.log \
+  -cm tgl         \
+  $@
