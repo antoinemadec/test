@@ -1,0 +1,58 @@
+#!/bin/bash
+
+set -e
+
+print_banner() {
+  echo ""
+  echo "#-----------------------------------------------------"
+  echo "# $@"
+  echo "#-----------------------------------------------------"
+}
+
+create_dir() {
+  local dname="$1"
+  print_banner "$dname"
+  rm -rf $dname
+  mkdir -p $dname
+  cp *v $dname
+  cp cm_hier* $dname
+  cd $dname
+}
+
+run_sim() {
+  local hier_file="$1"
+  shift 1
+  local src_files="$@"
+  vcs -q -l compile.log                     \
+    -sverilog -kdb -debug_access+all $src_files \
+    -cm tgl                                 \
+    -cm_hier $hier_file -cm_tgl portsonly
+  ./simv -l run.log \
+    -cm tgl         \
+    $@
+}
+
+rm -rf output*
+
+create_dir output
+run_sim cm_hier.file  test.sv top.v top_core.v > /dev/null
+cd ..
+
+create_dir output_4
+run_sim cm_hier.file test.sv top4.v top_core.v > /dev/null
+cd ..
+
+create_dir output_stub
+run_sim cm_hier.file test.sv top.v top_core_stub.v > /dev/null
+cd ..
+
+create_dir output_different_interface
+run_sim cm_hier.file test.sv top_different_interface.v top_core_different_interface.v > /dev/null
+cd ..
+
+create_dir output_different_hier
+run_sim cm_hier_diff.file test_different_hierarchy.sv top.v top_core_stub.v > /dev/null
+cd ..
+
+print_banner "merge coverage"
+urg -dir output/simv.vdb output_different_hier/simv.vdb -dbname  merged.vdb -format both

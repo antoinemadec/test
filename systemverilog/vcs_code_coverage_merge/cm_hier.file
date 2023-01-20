@@ -1,0 +1,4 @@
+begin tgl(portsonly)
+-tree test
++tree test.top 2
+end

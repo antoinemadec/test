@@ -1,0 +1,22 @@
+#!/bin/csh -fx
+rm -rf csrc simv*
+rm rf urg*
+rm rf *.fsdb
+#soc.vdb is the coverage database of base design, Hierarchy - (top.muxif.muxcase) 
+vcs -sverilog -cm line+tgl+branch muxcase.v muxif.v muxalltb.v  -kdb -debug_acc+all -cm_dir soc.vdb -o soc
+#blk.vdb is the coverage database of input design, Hierarchy - (top.muxcase) 
+vcs -sverilog -cm line+tgl+branch muxcase.v muxcasetb.v  -kdb -debug_acc+all -cm_dir blk.vdb -o blk
+if($status) exit 1;
+./soc -cm line+tgl+branch
+./blk -cm line+tgl+branch
+ if($status) exit 1;
+#urg -dir <base_design>.vdb -dir <input_design>.vdb -map <modulename of input design> -dbname <name>.vdb
+urg -dir soc.vdb -dir blk.vdb -map muxcase -dbname mapped.vdb
+if($status) exit 1;
+#To see code coverage of base design
+verdi -cov -covdir soc.vdb &
+#To see code coverage of input design
+verdi -cov -covdir blk.vdb &
+#To see code coverage after mapping
+verdi -cov -covdir mapped.vdb &
+
