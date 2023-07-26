@@ -1,22 +1,22 @@
 #include <stdio.h>
 #include <unistd.h>
-#include <fcntl.h>
 #include "stdlib.h"
 #include "svdpi.h"
 #include "server.h"
 
 
-extern "C" int uart_start_server(int idx);
-extern "C" int uart_get_char(int idx, svBitVecVal* chars);
+extern "C" int dpi_uart_start_server(int idx);
+extern "C" int dpi_uart_get_char(int idx, svBitVecVal* chars);
+extern "C" void dpi_uart_send_char(int idx, const svBitVecVal* chars);
 
 
 Server *server[2];
 int new_socket[2];
 
 
-int uart_start_server(int idx)
+int dpi_uart_start_server(int idx)
 {
-  char str[80];
+  char *str = new char[80];
   sprintf(str, "uart_%0d", idx);
   server[idx] = new Server(str);
   server[idx]->start();
@@ -25,7 +25,7 @@ int uart_start_server(int idx)
 }
 
 
-int uart_get_char(int idx, svBitVecVal* chars) {
+int dpi_uart_get_char(int idx, svBitVecVal* chars) {
   uint8_t read_buf[1];
   int r;
 
@@ -34,7 +34,6 @@ int uart_get_char(int idx, svBitVecVal* chars) {
     if (new_socket[idx] < 0) {
       return 0;
     }
-    fcntl(new_socket[idx], F_SETFL, O_NONBLOCK); // make read() non blocking
   }
 
   r = read(new_socket[idx], read_buf, sizeof(read_buf));
@@ -49,4 +48,13 @@ int uart_get_char(int idx, svBitVecVal* chars) {
 
   svPutPartselBit(chars, read_buf[0], 8*0, 8);
   return 1;
+}
+
+
+void dpi_uart_send_char(int idx, const svBitVecVal* chars) {
+  uint8_t send_buf[1];
+  svBitVecVal b = 0;
+  svGetPartselBit(&b, chars, 0*8, 8);
+  send_buf[0] = b;
+  send(new_socket[idx], send_buf, sizeof(send_buf) , 0);
 }

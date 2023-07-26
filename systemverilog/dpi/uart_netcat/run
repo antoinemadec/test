@@ -21,7 +21,10 @@ run_vcs() {
   g++ -o libdpi.so -g -shared -fPIC -m64 -I${VCS_HOME}/include dpi.cpp server.cpp server.h
   cd ..
   # run simu with DPI
-  vcs -q -l compile.log -sverilog -kdb -debug_access+all server/top.sv
+  vcs -q -l compile.log \
+    -sverilog -kdb -debug_access+all \
+    -timescale=1ns/1ps               \
+    server/top.sv
   ./simv -l run.log -sv_lib server/libdpi
 }
 

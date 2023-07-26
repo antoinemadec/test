@@ -56,7 +56,10 @@ void Server::start() {
 
 
 int Server::acceptNewSocket() {
-  return accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen);
+  int new_socket;
+  new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen);
+  fcntl(new_socket, F_SETFL, O_NONBLOCK);
+  return new_socket;
 }
 
 

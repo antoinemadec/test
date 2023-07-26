@@ -9,6 +9,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <ifaddrs.h>
+#include <fcntl.h>
 
 
 #define BASE_PORT 8100
