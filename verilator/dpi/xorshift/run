@@ -1,16 +1,19 @@
 #!/bin/bash
 
-set -e
+cpu_nb="$1"
+[ "$cpu_nb" = "" ] && cpu_nb=4
 
-mkdir -p output
-cp -rf src/* output
-cd output
+(
+# compilation
+sleep 10
+for ((i=0;i<cpu_nb;i++)); do
+  echo "compilation run_cpu $i"
+  ./run_cpu compilation $i > run_cpu_$i.log
+done
+# run
+for ((i=0;i<cpu_nb;i++)); do
+  (./run_cpu run $i > run_cpu_$i.log)&
+done
+)&
 
-verilator --binary -j 0 top.sv dpi_server.cpp server.cpp
-cat << EOF
-
-----------------------------------------
--- simulation start
-----------------------------------------
-EOF
-./obj_dir/Vtop
+./run_top

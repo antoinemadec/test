@@ -1,0 +1,30 @@
+#!/bin/bash
+
+set -e
+
+compilation=0
+if [ "$1" = "compilation" ]; then
+  compilation=1
+fi
+cpu_index="$2"
+
+output_dir=output_cpu_$cpu_index
+
+if ((compilation)); then
+  port_number="$(grep "port" ./output_top/server_cpu_$cpu_index.txt | awk '{print $2}')"
+
+  mkdir -p $output_dir
+  cp -rf src/* $output_dir
+  cd $output_dir
+
+  verilator --binary -j 0 top_cpu.sv dpi_client.cpp -GCPU_INDEX=$cpu_index -GSERVER_PORT=$port_number
+else
+  cd $output_dir
+  cat << EOF
+
+  ----------------------------------------
+  -- simulation start
+  ----------------------------------------
+EOF
+  ./obj_dir/Vtop_cpu
+fi

@@ -5,11 +5,11 @@ set -e
 cpu_nb="$1"
 [ "$cpu_nb" = "" ] && cpu_nb=4
 
-mkdir -p output
-cp -rf src/* output
-cd output
+mkdir -p output_top
+cp -rf src/* output_top
+cd output_top
 
-verilator --binary -j 0 -Wall top.sv cpu.sv -GCPU_NB=$cpu_nb
+verilator --binary -j 0 top.sv dpi_server.cpp server.cpp -GCPU_NB=$cpu_nb
 cat << EOF
 
 ----------------------------------------

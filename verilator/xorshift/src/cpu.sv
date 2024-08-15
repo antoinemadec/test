@@ -25,7 +25,7 @@ module cpu #(
   bit [63:0] x = SEED;
   always_ff @(posedge clk) begin
     data_vld <= 0;
-    x <= xorshift64star(x, 100000);
+    x <= xorshift64star(x, 10000000);
     wait_n_cycles(int'(x[15:0]));
     data_vld <= 1;
     data <= x;
