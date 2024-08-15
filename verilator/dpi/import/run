@@ -1,0 +1,16 @@
+#!/bin/bash
+
+set -e
+
+mkdir -p output
+cp -rf src/* output
+cd output
+
+verilator --binary -j 0 -Wall top.sv dpi.cpp
+cat << EOF
+
+----------------------------------------
+-- simulation start
+----------------------------------------
+EOF
+./obj_dir/Vtop

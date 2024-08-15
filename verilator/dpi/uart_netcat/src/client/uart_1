@@ -1,0 +1,9 @@
+#!/bin/bash
+
+set -e
+
+FILE="./server_uart_1.txt"
+
+port="$(grep "port" "$FILE" | awk '{print $2}')"
+
+ncat 127.0.0.1 $port
