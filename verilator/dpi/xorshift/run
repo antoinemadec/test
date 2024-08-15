@@ -6,7 +6,7 @@ mkdir -p output
 cp -rf src/* output
 cd output
 
-verilator --binary -j 0 -Wall top.sv cpu.sv
+verilator --binary -j 0 top.sv dpi_server.cpp server.cpp
 cat << EOF
 
 ----------------------------------------
