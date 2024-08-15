@@ -9,11 +9,11 @@ mkdir -p output
 cp -rf src/* output
 cd output
 
-verilator --binary -j 0 -Wall top.sv cpu.sv -GCPU_NB=$cpu_nb
+verilator --binary -j 0 top.sv cpu.sv -GCPU_NB=$cpu_nb
 cat << EOF
 
 ----------------------------------------
 -- simulation start
 ----------------------------------------
 EOF
-./obj_dir/Vtop
+./obj_dir/Vtop > sim.log

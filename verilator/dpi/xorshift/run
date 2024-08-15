@@ -16,4 +16,4 @@ for ((i=0;i<cpu_nb;i++)); do
 done
 )&
 
-./run_top
+./run_top $cpu_nb
