@@ -16,4 +16,4 @@ cat << EOF
 -- simulation start
 ----------------------------------------
 EOF
-./obj_dir/Vtop
+time ./obj_dir/Vtop
