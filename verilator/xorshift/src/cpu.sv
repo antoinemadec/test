@@ -1,15 +1,13 @@
 module cpu #(
-    parameter int CPU_INDEX = 0,
     parameter int TRANSACTION_NB = 1000,
     parameter int COMPUTATION_COMPLEXITY = 20
 ) (
     input bit clk,
+    input bit [31:0] cpu_index,
     output bit data_vld,
     output bit [63:0] data,
     output bit transactions_done
 );
-
-  localparam bit [63:0] Seed = 64'hdeadbeefdeadbeef + longint'(CPU_INDEX);
 
   function automatic bit [63:0] xorshift64star(input bit [63:0] x, input bit [31:0] iterations = 1);
     repeat (iterations) begin
@@ -29,7 +27,12 @@ module cpu #(
 
   int transaction_idx = 0;
 
-  bit [63:0] x = Seed;
+  bit [63:0] x;
+  initial begin
+    #1;
+    x = 64'hdeadbeefdeadbeef + longint'(cpu_index);
+  end
+
   always_ff @(posedge clk) begin
     if (!transactions_done) begin
       data_vld <= 0;
@@ -37,7 +40,7 @@ module cpu #(
       wait_n_cycles(int'(x[15:0]));
       data_vld <= 1;
       data <= x;
-      $display("[cpu_%0d] 0x%016x (transaction %0d/%0d)", CPU_INDEX, x, transaction_idx,
+      $display("[cpu_%0d] 0x%016x (transaction %0d/%0d)", cpu_index, x, transaction_idx,
                TRANSACTION_NB);
       transaction_idx <= transaction_idx + 1;
       if (transaction_idx == (TRANSACTION_NB - 1)) begin

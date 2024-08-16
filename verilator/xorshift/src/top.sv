@@ -11,13 +11,12 @@ module top #(
     bit [63:0] data;
     int transaction_idx = 0;
 
-    cpu #(
-        .CPU_INDEX(cpu_idx)
-    ) cpu (
-        .clk     (clk),
-        .data_vld(data_vld),
-        .data    (data),
-      .transactions_done(transactions_done[cpu_idx])
+    cpu cpu (
+        .clk              (clk),
+        .cpu_index        (cpu_idx),
+        .data_vld         (data_vld),
+        .data             (data),
+        .transactions_done(transactions_done[cpu_idx])
     );
 
     always @(posedge clk) begin
