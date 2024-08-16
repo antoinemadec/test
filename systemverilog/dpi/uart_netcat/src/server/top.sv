@@ -1,8 +1,3 @@
-import "DPI-C" context task   dpi_uart_start_server(int idx);
-import "DPI-C" function int   dpi_uart_get_char(input int idx, output bit[1*8-1:0] chars);
-import "DPI-C" function void  dpi_uart_send_char(input int idx, input bit[1*8-1:0] chars);
-
-
 module uart_xactor #(
   parameter CLK_SAMPLES = 4,
   parameter int server_idx = 0) (
@@ -10,6 +5,11 @@ module uart_xactor #(
   input rx,
   output reg tx
 );
+
+  import "DPI-C" context task   dpi_uart_start_server(int idx);
+  import "DPI-C" function int   dpi_uart_get_char(input int idx, output bit[1*8-1:0] chars);
+  import "DPI-C" function void  dpi_uart_send_char(input int idx, input bit[1*8-1:0] chars);
+
 
   int fp;
   string filename;

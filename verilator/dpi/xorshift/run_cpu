@@ -26,5 +26,5 @@ else
   -- simulation start
   ----------------------------------------
 EOF
-  ./obj_dir/Vtop_cpu
+  (time ./obj_dir/Vtop_cpu) &> sim.log
 fi

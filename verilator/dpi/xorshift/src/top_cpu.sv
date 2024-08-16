@@ -33,6 +33,7 @@ module top_cpu #(
       ;
     end
     wait(transactions_done);
+    repeat (2) @(posedge clk);
     $finish;
   end
 

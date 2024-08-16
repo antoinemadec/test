@@ -1,3 +1,19 @@
+package test_pkg;
+  class Test;
+    function new();
+    endfunction
+
+    task run();
+      forever begin
+        wait ($root.test.dut.data !== 0);
+        $display("data=0x%0x", $root.test.dut.data);
+        wait ($root.test.dut.data === 0);
+      end
+    endtask
+  endclass
+endpackage
+
+
 module dut();
   bit [31:0]    data;
   initial begin

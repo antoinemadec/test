@@ -8,11 +8,11 @@ cpu_nb="$1"
 sleep 10
 for ((i=0;i<cpu_nb;i++)); do
   echo "compilation run_cpu $i"
-  ./run_cpu compilation $i > run_cpu_$i.log
+  ./run_cpu compilation $i > /dev/null
 done
 # run
 for ((i=0;i<cpu_nb;i++)); do
-  (./run_cpu run $i > run_cpu_$i.log)&
+  ./run_cpu run $i &
 done
 )&
 

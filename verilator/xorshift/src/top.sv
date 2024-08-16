@@ -19,10 +19,17 @@ module top #(
         .data    (data),
       .transactions_done(transactions_done[cpu_idx])
     );
+
+    always @(posedge clk) begin
+      if (data_vld) begin
+        $display("[cpu_%0d] top read 0x%016x", cpu_idx, data);
+      end
+    end
   end
 
   initial begin
     wait (transactions_done == {CPU_NB{1'b1}});
+    repeat (2) @(posedge clk);
     $finish;
   end
 

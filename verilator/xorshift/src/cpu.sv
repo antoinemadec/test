@@ -37,18 +37,15 @@ module cpu #(
       wait_n_cycles(int'(x[15:0]));
       data_vld <= 1;
       data <= x;
+      $display("[cpu_%0d] 0x%016x (transaction %0d/%0d)", CPU_INDEX, x, transaction_idx,
+               TRANSACTION_NB);
       transaction_idx <= transaction_idx + 1;
       if (transaction_idx == (TRANSACTION_NB - 1)) begin
         transactions_done <= 1;
-        data_vld <= 0;
       end
+    end else begin
+      data_vld <= 0;
     end
   end
 
-  always_ff @(posedge clk) begin
-    if (data_vld == 1 && !transactions_done) begin
-      $display("[cpu_%0d] 0x%016x (transaction %0d/%0d)", CPU_INDEX, data, transaction_idx,
-               TRANSACTION_NB);
-    end
-  end
 endmodule
