@@ -1,5 +1,5 @@
 module cpu #(
-    parameter int TRANSACTION_NB = 10,
+    parameter int TRANSACTION_NB = 1000,
     parameter int COMPUTATION_COMPLEXITY = 20
 ) (
     input bit clk,

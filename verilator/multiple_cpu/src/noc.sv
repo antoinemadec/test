@@ -1,6 +1,6 @@
 module noc #(
     parameter int CPU_NB = 4,
-    parameter int TRANSACTION_NB = 10
+    parameter int TRANSACTION_NB = 1000
 ) (
     input bit clk,
     output bit data_rdy[CPU_NB],
