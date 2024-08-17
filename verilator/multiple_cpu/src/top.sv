@@ -7,6 +7,7 @@ module top #(
   bit [CPU_NB-1:0] transactions_done;
 
   for (genvar cpu_idx = 0; cpu_idx < CPU_NB; cpu_idx++) begin : gen_cpu
+    bit data_rdy;
     bit data_vld;
     bit [63:0] data;
     int transaction_idx = 0;
@@ -14,13 +15,15 @@ module top #(
     cpu cpu (
         .clk              (clk),
         .cpu_index        (cpu_idx),
+        .data_rdy         (data_rdy),
         .data_vld         (data_vld),
         .data             (data),
         .transactions_done(transactions_done[cpu_idx])
     );
 
     always @(posedge clk) begin
-      if (data_vld) begin
+      data_rdy <= bit'($urandom);
+      if (data_vld && data_rdy) begin
         $display("[cpu_%0d] top read 0x%016x", cpu_idx, data);
       end
     end

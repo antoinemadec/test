@@ -3,14 +3,16 @@ import "DPI-C" function int dpi_cpu_client_start(
   string server_address,
   int server_port
 );
-import "DPI-C" function void dpi_cpu_client_send_data(input bit [63:0] data);
+import "DPI-C" function int dpi_cpu_client_send_data(input bit [63:0] data);
 
 module top_cpu;
   bit clk = 0;
   always #1ns clk <= ~clk;
 
+  bit data_rdy;
   bit data_vld;
   bit [63:0] data;
+  bit [63:0] data_q;
   bit transactions_done;
 
   bit [31:0] cpu_index;
@@ -37,14 +39,23 @@ module top_cpu;
   cpu cpu (
       .clk              (clk),
       .cpu_index        (cpu_index),
+      .data_rdy         (data_rdy),
       .data_vld         (data_vld),
       .data             (data),
       .transactions_done(transactions_done)
   );
 
+  initial begin
+    data_rdy = 1;
+  end
+
   always_ff @(posedge clk) begin
-    if (data_vld) begin
-      dpi_cpu_client_send_data(data);
+    if (data_vld && data_rdy) begin
+      data_rdy <= dpi_cpu_client_send_data(data)[0];
+      data_q <= data;
+    end
+    if (!data_rdy) begin
+      data_rdy <= dpi_cpu_client_send_data(data_q)[0];
     end
   end
 endmodule

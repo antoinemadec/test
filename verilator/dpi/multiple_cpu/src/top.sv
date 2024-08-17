@@ -14,7 +14,8 @@ module top #(
   bit [CPU_NB-1:0] transactions_done;
 
   for (genvar cpu_idx = 0; cpu_idx < CPU_NB; cpu_idx++) begin : gen_cpu
-    int data_vld;
+    bit data_rdy;
+    bit data_vld;
     bit [63:0] data;
 
     bit server_has_started = 0;
@@ -23,17 +24,27 @@ module top #(
       server_has_started = 1;
     end
 
+    always @(posedge clk) begin
+      data_rdy <= bit'($urandom);
+    end
+
+    always @(posedge clk) begin
+      bit [63:0] data_dpi;
+      if (server_has_started && (!data_vld || data_rdy)) begin
+        bit data_vld_dpi;
+        data_vld_dpi = dpi_cpu_server_get_data(cpu_idx, data_dpi)[0];
+        data_vld <= data_vld_dpi;
+        data <= data_dpi;
+      end
+    end
+
     int transaction_idx = 0;
     always @(posedge clk) begin
-      bit [63:0] data;
-      if (server_has_started) begin
-        data_vld = dpi_cpu_server_get_data(cpu_idx, data);
-        if (data_vld == 1) begin
-          $display("[cpu_%0d] top read 0x%016x", cpu_idx, data);
-          transaction_idx <= transaction_idx + 1;
-          if (transaction_idx == (TRANSACTION_NB - 1)) begin
-            transactions_done[cpu_idx] <= 1;
-          end
+      if (data_vld && data_rdy) begin
+        $display("[cpu_%0d] top read 0x%016x", cpu_idx, data);
+        transaction_idx <= transaction_idx + 1;
+        if (transaction_idx == (TRANSACTION_NB - 1)) begin
+          transactions_done[cpu_idx] <= 1;
         end
       end
     end

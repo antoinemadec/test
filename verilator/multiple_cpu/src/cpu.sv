@@ -4,6 +4,7 @@ module cpu #(
 ) (
     input bit clk,
     input bit [31:0] cpu_index,
+    input bit data_rdy,
     output bit data_vld,
     output bit [63:0] data,
     output bit transactions_done
@@ -34,8 +35,13 @@ module cpu #(
   end
 
   always_ff @(posedge clk) begin
-    if (!transactions_done) begin
-      data_vld <= 0;
+    while (data_vld && !data_rdy) begin
+      wait_n_cycles(1);
+    end
+    data_vld <= 0;
+    if (transaction_idx == TRANSACTION_NB) begin
+      transactions_done <= 1;
+    end else begin
       x <= xorshift64star(x, COMPUTATION_COMPLEXITY*1000000);
       wait_n_cycles(int'(x[15:0]));
       data_vld <= 1;
@@ -43,11 +49,6 @@ module cpu #(
       $display("[cpu_%0d] 0x%016x (transaction %0d/%0d)", cpu_index, x, transaction_idx,
                TRANSACTION_NB);
       transaction_idx <= transaction_idx + 1;
-      if (transaction_idx == (TRANSACTION_NB - 1)) begin
-        transactions_done <= 1;
-      end
-    end else begin
-      data_vld <= 0;
     end
   end
 

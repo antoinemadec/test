@@ -9,7 +9,7 @@
 #include "svdpi.h"
 
 extern "C" int dpi_cpu_client_start(int idx, char const *server_address, int server_port);
-extern "C" void dpi_cpu_client_send_data(const svBitVecVal *data);
+extern "C" int dpi_cpu_client_send_data(const svBitVecVal *data);
 
 int new_socket = 0;
 
@@ -38,9 +38,14 @@ int dpi_cpu_client_start(int idx, char const *server_address, int server_port) {
   return 1;
 }
 
-void dpi_cpu_client_send_data(const svBitVecVal *data) {
+int dpi_cpu_client_send_data(const svBitVecVal *data) {
+  int r;
   uint32_t send_buf[2];
   send_buf[0] = data[0];
   send_buf[1] = data[1];
-  send(new_socket, send_buf, sizeof(send_buf), 0);
+  r = send(new_socket, send_buf, sizeof(send_buf), 0);
+  if (r <= 0) { // send failed
+    return 0;
+  }
+  return 1;
 }
