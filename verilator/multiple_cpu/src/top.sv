@@ -1,6 +1,7 @@
 module top #(
     parameter int CPU_NB = 4
 );
+
   bit clk = 0;
   always #1ns clk <= ~clk;
 

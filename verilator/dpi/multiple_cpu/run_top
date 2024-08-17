@@ -9,7 +9,10 @@ mkdir -p output_top
 cp -rf src/* output_top
 cd output_top
 
-verilator --binary -j 0 top.sv dpi_server.cpp server.cpp -GCPU_NB=$cpu_nb
+verilator --binary -j 0                  \
+  top.sv noc.sv cpu_dpi_server.sv        \
+  cpu_dpi_server.cpp server/server.cpp   \
+  -GCPU_NB=$cpu_nb
 cat << EOF
 
 ----------------------------------------

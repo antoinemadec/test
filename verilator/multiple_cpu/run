@@ -9,7 +9,9 @@ mkdir -p output
 cp -rf src/* output
 cd output
 
-verilator --binary -j 0 top.sv cpu.sv -GCPU_NB=$cpu_nb
+verilator --binary -j 0 \
+  top.sv noc.sv cpu.sv  \
+  -GCPU_NB=$cpu_nb
 cat << EOF
 
 ----------------------------------------

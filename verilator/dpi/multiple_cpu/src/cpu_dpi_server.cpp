@@ -2,7 +2,7 @@
 #include <unistd.h>
 #include "stdlib.h"
 #include "svdpi.h"
-#include "server.h"
+#include "server/server.h"
 
 
 extern "C" int dpi_cpu_server_start(int idx);
