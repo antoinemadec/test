@@ -4,35 +4,36 @@ module top #(
   bit clk = 0;
   always #1ns clk <= ~clk;
 
-  bit [CPU_NB-1:0] transactions_done;
+  bit  data_rdy[CPU_NB];
+  bit  data_vld[CPU_NB];
+  bit [63:0] data[CPU_NB];
+
+  noc #(
+      .CPU_NB(CPU_NB)
+  ) i_noc (
+      .clk     (clk),
+      .data_rdy(data_rdy),
+      .data_vld(data_vld),
+      .data    (data)
+  );
 
   for (genvar cpu_idx = 0; cpu_idx < CPU_NB; cpu_idx++) begin : gen_cpu
-    bit data_rdy;
-    bit data_vld;
-    bit [63:0] data;
-    int transaction_idx = 0;
+    bit cpu_data_rdy;
+    bit cpu_data_vld;
+    bit [63:0] cpu_data;
 
-    cpu cpu (
+    assign cpu_data_rdy = data_rdy[cpu_idx];
+    assign data_vld[cpu_idx] = cpu_data_vld;
+    assign data[cpu_idx] = cpu_data;
+
+    cpu i_cpu (
         .clk              (clk),
         .cpu_index        (cpu_idx),
-        .data_rdy         (data_rdy),
-        .data_vld         (data_vld),
-        .data             (data),
-        .transactions_done(transactions_done[cpu_idx])
+        .data_rdy         (cpu_data_rdy),
+        .data_vld         (cpu_data_vld),
+        .data             (cpu_data),
+        .transactions_done(/* not used */)
     );
-
-    always @(posedge clk) begin
-      data_rdy <= bit'($urandom);
-      if (data_vld && data_rdy) begin
-        $display("[cpu_%0d] top read 0x%016x", cpu_idx, data);
-      end
-    end
-  end
-
-  initial begin
-    wait (transactions_done == {CPU_NB{1'b1}});
-    repeat (2) @(posedge clk);
-    $finish;
   end
 
 endmodule

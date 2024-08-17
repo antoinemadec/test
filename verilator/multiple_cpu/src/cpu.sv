@@ -1,5 +1,5 @@
 module cpu #(
-    parameter int TRANSACTION_NB = 1000,
+    parameter int TRANSACTION_NB = 10,
     parameter int COMPUTATION_COMPLEXITY = 20
 ) (
     input bit clk,
@@ -46,7 +46,7 @@ module cpu #(
       wait_n_cycles(int'(x[15:0]));
       data_vld <= 1;
       data <= x;
-      $display("[cpu_%0d] 0x%016x (transaction %0d/%0d)", cpu_index, x, transaction_idx,
+      $display("[cpu_%0d] CPU sent 0x%016x (transaction %0d/%0d)", cpu_index, x, transaction_idx,
                TRANSACTION_NB);
       transaction_idx <= transaction_idx + 1;
     end

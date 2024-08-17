@@ -5,7 +5,9 @@ import "DPI-C" function int dpi_cpu_client_start(
 );
 import "DPI-C" function int dpi_cpu_client_send_data(input bit [63:0] data);
 
+
 module top_cpu;
+
   bit clk = 0;
   always #1ns clk <= ~clk;
 
@@ -36,7 +38,7 @@ module top_cpu;
     $finish;
   end
 
-  cpu cpu (
+  cpu i_cpu (
       .clk              (clk),
       .cpu_index        (cpu_index),
       .data_rdy         (data_rdy),
@@ -58,4 +60,5 @@ module top_cpu;
       data_rdy <= dpi_cpu_client_send_data(data_q)[0];
     end
   end
+
 endmodule
